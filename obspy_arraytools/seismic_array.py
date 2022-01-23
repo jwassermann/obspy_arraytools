@@ -35,9 +35,9 @@ from obspy.signal.invsim import cosine_taper
 from obspy.signal.util import util_geo_km, next_pow_2
 from obspy.taup import TauPyModel
 
-from obspy.signal.array_analysis.beamforming_result import BeamformerResult
-from obspy.signal.array_analysis.beamforming_result import plot_array_analysis
-from obspy.signal.array_analysis.array_rotation_strain import \
+from .beamforming_result import BeamformerResult
+from .beamforming_result import plot_array_analysis
+from .array_rotation_strain import \
     array_rotation_strain
 
 KM_PER_DEG = 111.1949
