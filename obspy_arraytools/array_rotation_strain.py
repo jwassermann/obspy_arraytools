@@ -1,46 +1,30 @@
-#!/usr/bin/env python
 """
 Derive rotations and strains from arrays.
-
 :copyright:
     The ObsPy Development Team (devs@obspy.org)
 :license:
     GNU Lesser General Public License, Version 3
     (https://www.gnu.org/copyleft/lesser.html)
 """
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
-from future.builtins import *  # NOQA
-
 import warnings
 
 import numpy as np
 
 
-def array_rotation_strain(
-    subarray, ts1, ts2, ts3, vp, vs, array_coords, sigmau
-):
+def array_rotation_strain(subarray, ts1, ts2, ts3, vp, vs, array_coords,
+                          sigmau):
     """
     Derive rotations and strains from array measurements.
-
     This routine calculates the best-fitting rigid body rotation and uniform
     strain as functions of time, and their formal errors, given
     three-component ground motion time series recorded on a seismic array.
-
     The theory implemented herein is presented in the papers [Spudich1995]_,
     (abbreviated S95 herein) [Spudich2008]_ (SF08) and [Spudich2009]_ (SF09).
-
     This is a translation of the Matlab Code presented in (SF09) with small
     changes in details only. Output has been checked to be the same as the
     original Matlab Code.
-
     .. note::
         ts\_ below means "time series"
-
     :param vp: P wave speed in the soil under the array (km/s).
     :param vs: S wave speed in the soil under the array Note - vp and vs may
         be any unit (e.g. miles/week), and this unit need not be related to
@@ -64,15 +48,14 @@ def array_rotation_strain(
         velocity, acceleration, jerk, etc.  See the "Discussion of input and
         output units" below.
     :type ts2: numpy.ndarray
-    :param ts2: Aame as ts1, but for the x2 component of motion.
+    :param ts2: Same as ts1, but for the x2 component of motion.
     :type ts3: numpy.ndarray
-    :param ts3: Aame as ts1, but for the x3 (UP or DOWN) component of
+    :param ts3: Same as ts1, but for the x3 (UP or DOWN) component of
         motion.
     :type sigmau: float or :class:`numpy.ndarray`
     :param sigmau: Standard deviation (NOT VARIANCE) of ground noise,
         corresponds to sigma-sub-u in S95 lines above eqn (A5).
         NOTE: This may be entered as a scalar, vector, or matrix!
-
         * If sigmau is a scalar, it will be used for all components of all
           stations.
         * If sigmau is a 1D array of length Na, sigmau[i] will be the noise
@@ -80,7 +63,6 @@ def array_rotation_strain(
           array_coords[i,:]
         * If sigmau is a 2D array of dimension  Na x 3, then sigmau[i,j] is
           used as the noise of station i, component j.
-
         In all cases, this routine assumes that the noise covariance between
      different stations and/or components is zero.
     :type subarray: numpy.ndarray
@@ -98,7 +80,6 @@ def array_rotation_strain(
         permuting subarray sequence changes the d vector, yielding a slightly
         different numerical result.
     :return: Dictionary with fields:
-
     **a:** (array, dimension 3N x 6)
         data mapping matrix 'a' of S95(A4)
     **g:** (array, dimension 6 x 3N)
@@ -181,41 +162,30 @@ def array_rotation_strain(
         solution vector p-tilde (from S95 eqn A5) as a function of time
     **cp:** (6 x 6)
         solution covariance matrix defined in SF08
-
     .. rubric:: Warnings
-
     This routine does not check to verify that your array is small enough to
     conform to the assumption that the array aperture is less than 1/4 of
     the shortest seismic wavelength in the data. See SF08 for a discussion
     of this assumption.
-
     This code assumes that ts1[j,:], ts2[j,:], and ts3[j,:] are all sampled
     SIMULTANEOUSLY.
-
     .. rubric:: Notes
-
     (1) Note On Specifying Input Array And Selecting Subarrays
-
         This routine allows the user to input the coordinates and ground
         motion time series of all stations in a seismic array having Na
         stations and the user may select for analysis a subarray of
         n_plus_1 <= Na stations.
-
     (2) Discussion Of Physical Units Of Input And Output
-
         If the input seismograms are in units of displacement, the output
         strains and rotations will be in units of strain (unitless) and
         angle (radians).  If the input seismograms are in units of
         velocity, the output will be strain rate (units = 1/s) and rotation
         rate (rad/s).  Higher temporal derivative inputs yield higher
         temporal derivative outputs.
-
         Input units of the array station coordinates must match the spatial
         units of the seismograms.  For example, if the input seismograms
         are in units of m/s^2, array coordinates must be entered in m.
-
     (3) Note On Coordinate System
-
         This routine assumes x1-x2-x3 is a RIGHT handed orthogonal
         coordinate system. x3 must point either UP or DOWN.
     """
@@ -225,25 +195,23 @@ def array_rotation_strain(
 
     # check to ensure all components have same duration
     if ts1.shape != ts2.shape:
-        raise ValueError("ts1 and ts2 have different sizes")
+        raise ValueError('ts1 and ts2 have different sizes')
     if ts1.shape != ts3.shape:
-        raise ValueError("ts1 and ts3 have different sizes")
+        raise ValueError('ts1 and ts3 have different sizes')
 
     # check to verify that the number of stations in ts1 agrees with the
     # number of stations in array_coords
     nrac, _ = array_coords.shape
     if nrac != na:
-        msg = (
-            "ts1 has %s columns(stations) but array_coords has " % na
-            + "%s rows(stations)" % nrac
-        )
+        msg = 'ts1 has %s columns(stations) but array_coords has ' % na + \
+              '%s rows(stations)' % nrac
         raise ValueError(msg)
 
     # check stations in subarray exist
     if min(subarray) < 0:
-        raise ValueError("Station number < 0 in subarray")
+        raise ValueError('Station number < 0 in subarray')
     if max(subarray) > na:
-        raise ValueError("Station number > Na in subarray")
+        raise ValueError('Station number > Na in subarray')
 
     # extract the stations of the subarray to be used
     subarraycoords = array_coords[subarray, :]
@@ -254,10 +222,10 @@ def array_rotation_strain(
     n = n_plus_1 - 1
 
     if n_plus_1 < 3:
-        msg = "The problem is underdetermined for fewer than 3 stations"
+        msg = 'The problem is underdetermined for fewer than 3 stations'
         raise ValueError(msg)
     elif n_plus_1 == 3:
-        msg = "For a 3-station array the problem is even-determined"
+        msg = 'For a 3-station array the problem is even-determined'
         warnings.warn(msg)
 
     # ------------------- NOW SOME SEISMOLOGY!! --------------------------
@@ -275,11 +243,10 @@ def array_rotation_strain(
     # fill up a
     for i in range(n):
         ss = subarraycoords[(i + 1), :] - subarraycoords[0, :]
-        a[(3 * i) : (3 * i + 3), :] = np.c_[
-            np.r_[ss, z3t],
-            np.r_[z3t, ss],
-            np.array([-eta * ss[2], 0.0, -ss[0], 0.0, -eta * ss[2], -ss[1]]),
-        ].transpose()
+        a[(3 * i):(3 * i + 3), :] = np.c_[
+            np.r_[ss, z3t], np.r_[z3t, ss],
+            np.array([-eta * ss[2],
+                      0., -ss[0], 0., -eta * ss[2], -ss[1]])].transpose()
 
     # ------------------------------------------------------
     # define data covariance matrix cd.
@@ -304,17 +271,14 @@ def array_rotation_strain(
         # sigmau is a row or column vector
         # check dimension is okay
         if np.size(sigmau) != na:
-            raise ValueError("sigmau must have %s elements" % na)
+            raise ValueError('sigmau must have %s elements' % na)
         junk = (np.c_[sigmau, sigmau, sigmau]) ** 2  # matrix of variances
         cu = np.diag(np.reshape(junk[subarray, :], (3 * n_plus_1)))
     elif sigmau.shape == (na, 3):
-        cu = np.diag(
-            np.reshape(
-                ((sigmau[subarray, :]) ** 2).transpose(), (3 * n_plus_1)
-            )
-        )
+        cu = np.diag(np.reshape(((sigmau[subarray, :]) ** 2).transpose(),
+                                (3 * n_plus_1)))
     else:
-        raise ValueError("sigmau has the wrong dimensions")
+        raise ValueError('sigmau has the wrong dimensions')
 
     # cd is the covariance matrix of the displ differences
     # dim(cd) is (3*n) * (3*n)
@@ -329,7 +293,7 @@ def array_rotation_strain(
     condition_number = np.linalg.cond(atcdia)
 
     if condition_number > 100:
-        msg = "Condition number is %s" % condition_number
+        msg = 'Condition number is %s' % condition_number
         warnings.warn(msg)
 
     # set up storage for vectors that will contain time series
@@ -346,21 +310,8 @@ def array_rotation_strain(
     ts_m = np.empty(nt)
     ts_data = np.empty((nt, 3 * n))
     ts_ptilde = np.empty((nt, 6))
-    for array in (
-        ts_wmag,
-        ts_w1,
-        ts_w2,
-        ts_w3,
-        ts_tilt,
-        ts_dh,
-        ts_sh,
-        ts_s,
-        ts_pred,
-        ts_misfit,
-        ts_m,
-        ts_data,
-        ts_ptilde,
-    ):
+    for array in (ts_wmag, ts_w1, ts_w2, ts_w3, ts_tilt, ts_dh, ts_sh,
+                  ts_s, ts_pred, ts_misfit, ts_m, ts_data, ts_ptilde):
         array.fill(np.NaN)
     ts_e = np.empty((nt, 3, 3))
     ts_e.fill(np.NaN)
@@ -378,21 +329,21 @@ def array_rotation_strain(
     #
     # the rows of be correspond to e11 e21 e22 and e33
     be = np.zeros((4, 6))
-    be[0, 0] = 2.0
-    be[1, 1] = 1.0
-    be[1, 3] = 1.0
-    be[2, 4] = 2.0
+    be[0, 0] = 2.
+    be[1, 1] = 1.
+    be[1, 3] = 1.
+    be[2, 4] = 2.
     be[3, 0] = -2 * eta
     be[3, 4] = -2 * eta
-    be *= 0.5
+    be *= .5
     #
     # the rows of bw correspond to w21 w31 and w32
     bw = np.zeros((3, 6))
-    bw[0, 1] = 1.0
-    bw[0, 3] = -1.0
-    bw[1, 2] = 2.0
-    bw[2, 5] = 2.0
-    bw *= 0.5
+    bw[0, 1] = 1.
+    bw[0, 3] = -1.
+    bw[1, 2] = 2.
+    bw[2, 5] = 2.
+    bw *= .5
     #
     # This is the 4x6 matrix mapping solution to total shear strain gamma
     # where gamma = strain - tr(strain)/3 * eye(3)
@@ -403,8 +354,8 @@ def array_rotation_strain(
     bgamma = np.zeros((4, 6))
     bgamma[0, 0] = aa
     bgamma[0, 4] = -b
-    bgamma[2, 2] = 0.5
-    bgamma[1, 3] = 0.5
+    bgamma[2, 2] = .5
+    bgamma[1, 3] = .5
     bgamma[2, 0] = -b
     bgamma[2, 4] = aa
     bgamma[3, 0] = -c
@@ -414,12 +365,12 @@ def array_rotation_strain(
     #  gamma the four elements of horiz shear are 11, 12, and 22.  It is
     #  symmetric.
     bgammah = np.zeros((3, 6))
-    bgammah[0, 0] = 0.5
-    bgammah[0, 4] = -0.5
-    bgammah[1, 1] = 0.5
-    bgammah[1, 3] = 0.5
-    bgammah[2, 0] = -0.5
-    bgammah[2, 4] = 0.5
+    bgammah[0, 0] = .5
+    bgammah[0, 4] = -.5
+    bgammah[1, 1] = .5
+    bgammah[1, 3] = .5
+    bgammah[2, 0] = -.5
+    bgammah[2, 4] = .5
 
     # Solution covariance matrix.  dim(cp) = 6 * 6
     # corresponding to solution elements [u1,1 u1,2 u1,3 u2,1 u2,2 u2,3 ]
@@ -506,9 +457,9 @@ def array_rotation_strain(
         misfit_len = np.sum(np.sqrt(misfit_sumsq))
         ts_m[itime] = misfit_len / sumlen
         #
-        ts_data[itime, 0 : 3 * n] = data.T
-        ts_pred[itime, 0 : 3 * n] = pred.T
-        ts_misfit[itime, 0 : 3 * n] = misfit.T
+        ts_data[itime, 0:3 * n] = data.T
+        ts_pred[itime, 0:3 * n] = pred.T
+        ts_misfit[itime, 0:3 * n] = misfit.T
         ts_ptilde[itime, :] = ptilde.T
         #
         # ---------------------------------------------------------------
@@ -519,7 +470,7 @@ def array_rotation_strain(
         #
         # calculate strain tensors
         # Fung eqn 5.1 p 97 gives dui = (eij-wij)*dxj
-        e = 0.5 * (u + u.T)
+        e = .5 * (u + u.T)
         ts_e[itime] = e
 
         # Three components of the rotation vector omega (=w here)
@@ -527,7 +478,7 @@ def array_rotation_strain(
         w.fill(np.NaN)
         w[0] = -ptilde[5]
         w[1] = ptilde[2]
-        w[2] = 0.5 * (ptilde[3] - ptilde[1])
+        w[2] = .5 * (ptilde[3] - ptilde[1])
 
         # amount of total rotation is length of rotation vector
         ts_wmag[itime] = np.sqrt(np.sum(w ** 2))
@@ -552,19 +503,19 @@ def array_rotation_strain(
         # azimuth
         eh = np.r_[np.c_[e[0, 0], e[0, 1]], np.c_[e[1, 0], e[1, 1]]]
         # 7/21/06.ii.2(4)
-        gammah = eh - np.trace(eh) * np.eye(2) / 2.0
+        gammah = eh - np.trace(eh) * np.eye(2) / 2.
         # 9/14/92.ii.4, 7/21/06.ii.2(5)
 
         # eigvecs are principal axes, eigvals are principal strains
         [eigvals, _eigvecs] = np.linalg.eig(gammah)
         # max shear strain, from Fung (1965, p71, eqn (8)
-        ts_sh[itime] = 0.5 * (max(eigvals) - min(eigvals))
+        ts_sh[itime] = .5 * (max(eigvals) - min(eigvals))
 
         # calculate max of total shear strain, not just horizontal strain
         # eigvecs are principal axes, eigvals are principal strains
         [eigvalt, _eigvect] = np.linalg.eig(e)
         # max shear strain, from Fung (1965, p71, eqn (8)
-        ts_s[itime] = 0.5 * (max(eigvalt) - min(eigvalt))
+        ts_s[itime] = .5 * (max(eigvalt) - min(eigvalt))
         #
 
     # ====================================================================
@@ -576,44 +527,44 @@ def array_rotation_strain(
     # load output structure
     out = dict()
 
-    out["a"] = a
-    out["g"] = g
-    out["ce"] = ce
+    out['a'] = a
+    out['g'] = g
+    out['ce'] = ce
 
-    out["ts_d"] = ts_d
-    out["sigmad"] = sigmad
+    out['ts_d'] = ts_d
+    out['sigmad'] = sigmad
 
-    out["ts_dh"] = ts_dh
-    out["sigmadh"] = sigmadh
+    out['ts_dh'] = ts_dh
+    out['sigmadh'] = sigmadh
 
-    out["ts_s"] = ts_s
-    out["cgamma"] = cgamma
+    out['ts_s'] = ts_s
+    out['cgamma'] = cgamma
 
-    out["ts_sh"] = ts_sh
-    out["cgammah"] = cgammah
+    out['ts_sh'] = ts_sh
+    out['cgammah'] = cgammah
 
-    out["ts_wmag"] = ts_wmag
-    out["cw"] = cw
+    out['ts_wmag'] = ts_wmag
+    out['cw'] = cw
 
-    out["ts_w1"] = ts_w1
-    out["sigmaw1"] = sigmaw1
-    out["ts_w2"] = ts_w2
-    out["sigmaw2"] = sigmaw2
-    out["ts_w3"] = ts_w3
-    out["sigmaw3"] = sigmaw3
+    out['ts_w1'] = ts_w1
+    out['sigmaw1'] = sigmaw1
+    out['ts_w2'] = ts_w2
+    out['sigmaw2'] = sigmaw2
+    out['ts_w3'] = ts_w3
+    out['sigmaw3'] = sigmaw3
 
-    out["ts_tilt"] = ts_tilt
-    out["sigmat"] = sigmat
+    out['ts_tilt'] = ts_tilt
+    out['sigmat'] = sigmat
 
-    out["ts_data"] = ts_data
-    out["ts_pred"] = ts_pred
-    out["ts_misfit"] = ts_misfit
-    out["ts_m"] = ts_m
-    out["ts_e"] = ts_e
+    out['ts_data'] = ts_data
+    out['ts_pred'] = ts_pred
+    out['ts_misfit'] = ts_misfit
+    out['ts_m'] = ts_m
+    out['ts_e'] = ts_e
 
-    out["ts_ptilde"] = ts_ptilde
-    out["cp"] = cp
+    out['ts_ptilde'] = ts_ptilde
+    out['cp'] = cp
 
-    out["ts_m"] = ts_m
+    out['ts_m'] = ts_m
 
     return out

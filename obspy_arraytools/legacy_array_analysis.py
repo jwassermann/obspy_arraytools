@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 """
 Functions for array analysis.
-
 These routines are largely still around to ensure compatibility with
 existing codes. Please try to use the new class based
 :class:`~obspy.signals.array_analysis.seismic_array.SeismicArray` interface.
-
 :copyright:
     The ObsPy Development Team (devs@obspy.org)
 :license:
     GNU Lesser General Public License, Version 3
     (https://www.gnu.org/copyleft/lesser.html)
 """
-from __future__ import (
-    absolute_import,
-    division,
-    print_function,
-    unicode_literals,
-)
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 from future.builtins import *  # NOQA
 
 import math
@@ -31,12 +25,10 @@ from obspy.signal.invsim import cosine_taper
 from obspy.signal.util import next_pow_2, util_geo_km
 
 
-def get_geometry(
-    stream, coordsys="lonlat", return_center=False, verbose=False
-):
+def get_geometry(stream, coordsys='lonlat', return_center=False,
+                 verbose=False):
     """
     Method to calculate the array geometry and the center coordinates in km
-
     :param stream: Stream object, the trace.stats dict like class must
         contain an :class:`~obspy.core.util.attribdict.AttribDict` with
         'latitude', 'longitude' (in degrees) and 'elevation' (in km), or 'x',
@@ -52,41 +44,40 @@ def get_geometry(
             return_center is true
     """
     nstat = len(stream)
-    center_lat = 0.0
-    center_lon = 0.0
-    center_h = 0.0
+    center_lat = 0.
+    center_lon = 0.
+    center_h = 0.
     geometry = np.empty((nstat, 3))
 
     if isinstance(stream, Stream):
         for i, tr in enumerate(stream):
-            if coordsys == "lonlat":
+            if coordsys == 'lonlat':
                 geometry[i, 0] = tr.stats.coordinates.longitude
                 geometry[i, 1] = tr.stats.coordinates.latitude
                 geometry[i, 2] = tr.stats.coordinates.elevation
-            elif coordsys == "xy":
+            elif coordsys == 'xy':
                 geometry[i, 0] = tr.stats.coordinates.x
                 geometry[i, 1] = tr.stats.coordinates.y
                 geometry[i, 2] = tr.stats.coordinates.elevation
     elif isinstance(stream, np.ndarray):
         geometry = stream.copy()
     else:
-        raise TypeError("only Stream or numpy.ndarray allowed")
+        raise TypeError('only Stream or numpy.ndarray allowed')
 
     if verbose:
         print("coordsys = " + coordsys)
 
-    if coordsys == "lonlat":
+    if coordsys == 'lonlat':
         center_lon = geometry[:, 0].mean()
         center_lat = geometry[:, 1].mean()
         center_h = geometry[:, 2].mean()
         for i in np.arange(nstat):
-            x, y = util_geo_km(
-                center_lon, center_lat, geometry[i, 0], geometry[i, 1]
-            )
+            x, y = util_geo_km(center_lon, center_lat, geometry[i, 0],
+                               geometry[i, 1])
             geometry[i, 0] = x
             geometry[i, 1] = y
             geometry[i, 2] -= center_h
-    elif coordsys == "xy":
+    elif coordsys == 'xy':
         geometry[:, 0] -= geometry[:, 0].mean()
         geometry[:, 1] -= geometry[:, 1].mean()
         geometry[:, 2] -= geometry[:, 2].mean()
@@ -94,9 +85,8 @@ def get_geometry(
         raise ValueError("Coordsys must be one of 'lonlat', 'xy'")
 
     if return_center:
-        return np.c_[
-            geometry.T, np.array((center_lon, center_lat, center_h))
-        ].T
+        return np.c_[geometry.T,
+                     np.array((center_lon, center_lat, center_h))].T
     else:
         return geometry
 
@@ -112,16 +102,12 @@ def __geometry_to_inventory(geometry):
     # A bit of an ugly hack to reduce the code duplication and use the
     # routines in the new array class.
     stations = [
-        Station(
-            code="%i" % _i,
-            # Manually inverted for the best constant that work with
-            # ObsPy's internal conversions.
-            latitude=geom[1] / 110.5748180,
-            longitude=geom[0] / 111.319941,
-            elevation=0,
-        )
-        for _i, geom in enumerate(geometry)
-    ]
+        Station(code="%i" % _i,
+                # Manually inverted for the best constant that work with
+                # ObsPy's internal conversions.
+                latitude=geom[1] / 110.5748180,
+                longitude=geom[0] / 111.319941,
+                elevation=0) for _i, geom in enumerate(geometry)]
     network = Network(code="XX", stations=stations)
     inv = Inventory(networks=[network], source="me")
     return SeismicArray(name="", inventory=inv)
@@ -130,12 +116,10 @@ def __geometry_to_inventory(geometry):
 def get_timeshift(geometry, sll_x, sll_y, sl_s, grdpts_x, grdpts_y):
     """
     Returns timeshift table for given array geometry
-
     .. note::
         Legacy routine - please slowly transition towards using the
         :class:`~obspy.signal.array_analysis.seismic_array.SeismicArray`
         class.
-
     :param geometry: Nested list containing the arrays geometry, as
         returned by get_group_geometry
     :param sll_x: slowness x min (lower)
@@ -145,28 +129,19 @@ def get_timeshift(geometry, sll_x, sll_y, sl_s, grdpts_x, grdpts_y):
     :param grdpts_x: number of grid points in y direction
     """
     sa = __geometry_to_inventory(geometry)
-    return sa._get_timeshift(
-        sllx=sll_x,
-        slly=sll_y,
-        sls=sl_s,
-        grdpts_x=grdpts_x,
-        grdpts_y=grdpts_y,
-        latitude=0.0,
-        longitude=0.0,
-        absolute_height=0,
-        static3d=False,
-    )
+    return sa._get_timeshift(sllx=sll_x, slly=sll_y, sls=sl_s,
+                             grdpts_x=grdpts_x, grdpts_y=grdpts_y,
+                             latitude=0.0, longitude=0.0, absolute_height=0,
+                             static3d=False)
 
 
-def array_transff_wavenumber(coords, klim, kstep, coordsys="lonlat"):
+def array_transff_wavenumber(coords, klim, kstep, coordsys='lonlat'):
     """
     Returns array transfer function as a function of wavenumber difference
-
     .. note::
         Legacy routine - please slowly transition towards using the
         :class:`~obspy.signal.array_analysis.seismic_array.SeismicArray`
         class.
-
     :type coords: numpy.ndarray
     :param coords: coordinates of stations in longitude and latitude in degrees
         elevation in km, or x, y, z in km
@@ -181,18 +156,15 @@ def array_transff_wavenumber(coords, klim, kstep, coordsys="lonlat"):
     return sa.array_transfer_function_wavenumber(klim=klim, kstep=kstep)
 
 
-def array_transff_freqslowness(
-    coords, slim, sstep, fmin, fmax, fstep, coordsys="lonlat"
-):
+def array_transff_freqslowness(coords, slim, sstep, fmin, fmax, fstep,
+                               coordsys='lonlat'):
     """
     Returns array transfer function as a function of slowness difference and
     frequency.
-
     .. note::
         Legacy routine - please slowly transition towards using the
         :class:`~obspy.signal.array_analysis.seismic_array.SeismicArray`
         class.
-
     :type coords: numpy.ndarray
     :param coords: coordinates of stations in longitude and latitude in degrees
         elevation in km, or x, y, z in km
@@ -211,8 +183,7 @@ def array_transff_freqslowness(
     geometry = get_geometry(coords, coordsys)
     sa = __geometry_to_inventory(geometry)
     return sa.array_transfer_function_freqslowness(
-        slim=slim, sstep=sstep, fmin=fmin, fmax=fmax, fstep=fstep
-    )
+        slim=slim, sstep=sstep, fmin=fmin, fmax=fmax, fstep=fstep)
 
 
 def dump(pow_map, apow_map, i):
@@ -220,35 +191,16 @@ def dump(pow_map, apow_map, i):
     Example function to use with `store` kwarg in
     :func:`~obspy.signal.array_analysis.array_processing`.
     """
-    np.savez("pow_map_%d.npz" % i, pow_map)
-    np.savez("apow_map_%d.npz" % i, apow_map)
+    np.savez('pow_map_%d.npz' % i, pow_map)
+    np.savez('apow_map_%d.npz' % i, apow_map)
 
 
-def array_processing(
-    stream,
-    win_len,
-    win_frac,
-    sll_x,
-    slm_x,
-    sll_y,
-    slm_y,
-    sl_s,
-    semb_thres,
-    vel_thres,
-    frqlow,
-    frqhigh,
-    stime,
-    etime,
-    prewhiten,
-    verbose=False,
-    coordsys="lonlat",
-    timestamp="mlabday",
-    method=0,
-    store=None,
-):
+def array_processing(stream, win_len, win_frac, sll_x, slm_x, sll_y, slm_y,
+                     sl_s, semb_thres, vel_thres, frqlow, frqhigh, stime,
+                     etime, prewhiten, verbose=False, coordsys='lonlat',
+                     timestamp='mlabday', method=0, store=None):
     """
     Method for Seismic-Array-Beamforming/FK-Analysis/Capon
-
     :param stream: Stream object, the trace.stats dict like class must
         contain an :class:`~obspy.core.util.attribdict.AttribDict` with
         'latitude', 'longitude' (in degrees) and 'elevation' (in km), or 'x',
@@ -309,7 +261,7 @@ def array_processing(
     # check that sampling rates do not vary
     fs = stream[0].stats.sampling_rate
     if len(stream) != len(stream.select(sampling_rate=fs)):
-        msg = "in sonic sampling rates of traces in stream are not equal"
+        msg = 'in sonic sampling rates of traces in stream are not equal'
         raise ValueError(msg)
 
     grdpts_x = int(((slm_x - sll_x) / sl_s + 0.5) + 1)
@@ -324,9 +276,8 @@ def array_processing(
         print(stream)
         print("stime = " + str(stime) + ", etime = " + str(etime))
 
-    time_shift_table = get_timeshift(
-        geometry, sll_x, sll_y, sl_s, grdpts_x, grdpts_y
-    )
+    time_shift_table = get_timeshift(geometry, sll_x, sll_y,
+                                     sl_s, grdpts_x, grdpts_y)
     # offset of arrays
     spoint, _epoint = seismic_array._get_stream_offsets(stream, stime, etime)
     #
@@ -347,9 +298,8 @@ def array_processing(
     nf = nhigh - nlow + 1  # include upper and lower frequency
     # to speed up the routine a bit we estimate all steering vectors in advance
     steer = np.empty((nf, grdpts_x, grdpts_y, nstat), dtype=np.complex128)
-    clibsignal.calcSteer(
-        nstat, grdpts_x, grdpts_y, nf, nlow, deltaf, time_shift_table, steer
-    )
+    clibsignal.calcSteer(nstat, grdpts_x, grdpts_y, nf, nlow,
+                         deltaf, time_shift_table, steer)
     _r = np.empty((nf, nstat, nstat), dtype=np.complex128)
     ft = np.empty((nstat, nf), dtype=np.complex128)
     newstart = stime
@@ -361,16 +311,17 @@ def array_processing(
     while eotr:
         try:
             for i, tr in enumerate(stream):
-                dat = tr.data[spoint[i] + offset : spoint[i] + offset + nsamp]
+                dat = tr.data[spoint[i] + offset:
+                              spoint[i] + offset + nsamp]
                 dat = (dat - dat.mean()) * tap
-                ft[i, :] = np.fft.rfft(dat, nfft)[nlow : nlow + nf]
+                ft[i, :] = np.fft.rfft(dat, nfft)[nlow:nlow + nf]
         except IndexError:
             break
         ft = np.ascontiguousarray(ft, np.complex128)
-        relpow_map.fill(0.0)
-        abspow_map.fill(0.0)
+        relpow_map.fill(0.)
+        abspow_map.fill(0.)
         # computing the covariances of the signal at different receivers
-        dpow = 0.0
+        dpow = 0.
         for i in range(nstat):
             for j in range(i, nstat):
                 _r[:, i, j] = ft[i, :] * ft[j, :].conj()
@@ -387,20 +338,10 @@ def array_processing(
                 _r[n, :, :] = np.linalg.pinv(_r[n, :, :], rcond=1e-6)
 
         errcode = clibsignal.generalizedBeamformer(
-            relpow_map,
-            abspow_map,
-            steer,
-            _r,
-            nstat,
-            prewhiten,
-            grdpts_x,
-            grdpts_y,
-            nf,
-            dpow,
-            method,
-        )
+            relpow_map, abspow_map, steer, _r, nstat, prewhiten,
+            grdpts_x, grdpts_y, nf, dpow, method)
         if errcode != 0:
-            msg = "generalizedBeamforming exited with error %d"
+            msg = 'generalizedBeamforming exited with error %d'
             raise Exception(msg % errcode)
         ix, iy = np.unravel_index(relpow_map.argmax(), relpow_map.shape)
         relpow, abspow = relpow_map[ix, iy], abspow_map[ix, iy]
@@ -415,10 +356,9 @@ def array_processing(
             slow = 1e-8
         azimut = 180 * math.atan2(slow_x, slow_y) / math.pi
         baz = azimut % -360 + 180
-        if relpow > semb_thres and 1.0 / slow > vel_thres:
-            res.append(
-                np.array([newstart.timestamp, relpow, abspow, baz, slow])
-            )
+        if relpow > semb_thres and 1. / slow > vel_thres:
+            res.append(np.array([newstart.timestamp, relpow, abspow, baz,
+                                 slow]))
             if verbose:
                 print(newstart, (newstart + (nsamp / fs)), res[-1][1:])
         if (newstart + (nsamp + nstep) / fs) > etime:
@@ -427,18 +367,17 @@ def array_processing(
 
         newstart += nstep / fs
     res = np.array(res)
-    if timestamp == "julsec":
+    if timestamp == 'julsec':
         pass
-    elif timestamp == "mlabday":
+    elif timestamp == 'mlabday':
         # 719163 == days between 1970 and 0001 + 1
-        res[:, 0] = res[:, 0] / (24.0 * 3600) + 719163
+        res[:, 0] = res[:, 0] / (24. * 3600) + 719163
     else:
         msg = "Option timestamp must be one of 'julsec', or 'mlabday'"
         raise ValueError(msg)
     return np.array(res)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     import doctest
-
     doctest.testmod(exclude_empty=True)
