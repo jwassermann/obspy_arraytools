@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<FDSNStationXML xmlns="http://www.fdsn.org/xml/station/1" schemaVersion="1">
+  <Source/>
+  <Module>fdsn-stationxml-converter/1.0.0</Module>
+  <ModuleURI>http://www.iris.edu/fdsnstationconverter</ModuleURI>
+  <Created>2014-02-11T18:00:11.959+01:00</Created>
+  <Network code="CN">
+    <Description>Canadian National Seismograph Network</Description>
+    <Station code="YKW1" startDate="1989-01-25T00:00:00.000">
+      <Latitude>62.482203</Latitude>
+      <Longitude>-114.484257</Longitude>
+      <Elevation>170.7</Elevation>
+      <Site>
+        <Name>Yellowknife, NT, CANADA</Name>
+      </Site>
+      <CreationDate>1989-01-25T00:00:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="1989-01-25T00:00:00.000">
+        <Latitude>62.482203</Latitude>
+        <Longitude>-114.484257</Longitude>
+        <Elevation>170.7</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>20.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Streckeisen STS-1V/VBB broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="YKW2" startDate="1989-01-25T00:00:00.000">
+      <Latitude>62.4337</Latitude>
+      <Longitude>-114.6038</Longitude>
+      <Elevation>143.8</Elevation>
+      <Site>
+        <Name>Yellowknife, NT, CANADA</Name>
+      </Site>
+      <CreationDate>1989-01-25T00:00:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="1989-01-25T00:00:00.000">
+        <Latitude>62.4337</Latitude>
+        <Longitude>-114.6038</Longitude>
+        <Elevation>143.8</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>20.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Streckeisen STS-1V/VBB broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="YKW3" startDate="1989-01-25T00:00:00.000">
+      <Latitude>62.561618</Latitude>
+      <Longitude>-114.609925</Longitude>
+      <Elevation>170.3</Elevation>
+      <Site>
+        <Name>Yellowknife, NT, CANADA</Name>
+      </Site>
+      <CreationDate>1989-01-25T00:00:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="1989-01-25T00:00:00.000">
+        <Latitude>62.561618</Latitude>
+        <Longitude>-114.609925</Longitude>
+        <Elevation>170.3</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>20.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Streckeisen STS-1V/VBB broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+      <Channel locationCode="  " code="EHZ" startDate="1989-01-25T00:00:00.000">
+        <Latitude>62.561618</Latitude>
+        <Longitude>-114.609925</Longitude>
+        <Elevation>170.3</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>100.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Geotech S-13 short period seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="YKW4" startDate="1989-01-25T00:00:00.000">
+      <Latitude>62.49246</Latitude>
+      <Longitude>-114.743202</Longitude>
+      <Elevation>160.6</Elevation>
+      <Site>
+        <Name>Yellowknife, NT, CANADA</Name>
+      </Site>
+      <CreationDate>1989-01-25T00:00:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="1989-01-25T00:00:00.000">
+        <Latitude>62.49246</Latitude>
+        <Longitude>-114.743202</Longitude>
+        <Elevation>160.6</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>20.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Streckeisen STS-1V/VBB broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="ILON" startDate="2005-08-24T13:30:00.000">
+      <Latitude>69.3712</Latitude>
+      <Longitude>-81.824217</Longitude>
+      <Elevation>51.0</Elevation>
+      <Site>
+        <Name>Igloolik, NU, CANADA..A</Name>
+      </Site>
+      <CreationDate>2005-08-24T13:30:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="2005-08-24T13:30:00.000">
+        <Latitude>69.3712</Latitude>
+        <Longitude>-81.824217</Longitude>
+        <Elevation>51.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>40.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Canadian National Seismograph Network</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="ACKN" startDate="2003-08-12T18:39:00.000">
+      <Latitude>64.99151</Latitude>
+      <Longitude>-110.87081</Longitude>
+      <Elevation>469.0</Elevation>
+      <Site>
+        <Name>ACHILLES LAKE, NT, CANADA</Name>
+      </Site>
+      <CreationDate>2003-08-12T18:39:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="2003-08-12T18:39:00.000" endDate="2006-07-11T14:40:00.000">
+        <Latitude>64.99151</Latitude>
+        <Longitude>-110.87081</Longitude>
+        <Elevation>469.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>40.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Guralp CMG-3E broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="EKTN" startDate="2003-08-12T13:22:00.000">
+      <Latitude>64.69846</Latitude>
+      <Longitude>-110.60967</Longitude>
+      <Elevation>468.0</Elevation>
+      <Site>
+        <Name>EKATI MINE, NT, CANADA.DA</Name>
+      </Site>
+      <CreationDate>2003-08-12T13:22:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="2003-08-12T13:22:00.000" endDate="2006-07-12T14:03:00.000">
+        <Latitude>64.69846</Latitude>
+        <Longitude>-110.60967</Longitude>
+        <Elevation>468.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>40.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Guralp CMG-3E broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+    <Station code="KNDN" startDate="2003-07-20T19:20:00.000">
+      <Latitude>63.41929</Latitude>
+      <Longitude>-109.20131</Longitude>
+      <Elevation>421.0</Elevation>
+      <Site>
+        <Name>KENNADY LAKE, NT, CANADA</Name>
+      </Site>
+      <CreationDate>2003-07-20T19:20:00.000</CreationDate>
+      <Channel locationCode="  " code="BHZ" startDate="2003-07-20T19:20:00.000" endDate="2007-07-14T16:18:00.000">
+        <Latitude>63.41929</Latitude>
+        <Longitude>-109.20131</Longitude>
+        <Elevation>421.0</Elevation>
+        <Depth>0.0</Depth>
+        <Azimuth>0.0</Azimuth>
+        <Dip>-90.0</Dip>
+        <Type>GEOPHYSICAL</Type>
+        <SampleRate>40.0</SampleRate>
+        <ClockDrift>2.5E-8</ClockDrift>
+        <CalibrationUnits>
+          <Name>M/S</Name>
+        </CalibrationUnits>
+        <Sensor>
+          <Type>Guralp CMG-3E broad band seismometer</Type>
+        </Sensor>
+        <Response>
+          <Stage number="1"/>
+        </Response>
+      </Channel>
+    </Station>
+  </Network>
+</FDSNStationXML>

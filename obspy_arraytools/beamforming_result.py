@@ -57,7 +57,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
 
     trace = []
     t, rel_power, abs_power, baz, slow = out.T
-    baz[baz < 0.0] += 360
+    #baz[baz < 0.0] += 360
     # now let's do the plotting
     cmap = cm.get_cmap('viridis')
 
@@ -69,7 +69,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     sll = np.min(np.absolute([sllx, slly, slmx, slmy]))
     slll = np.arange(-sll - sls, sll, sls)
     if baz_plot:
-        maxslowg = np.sqrt(2*sll**2)
+        maxslowg = np.sqrt(sll**2)
         bzs = np.arctan2(sls, maxslowg) * 180 / np.pi
         xi = np.arange(0., 360. + bzs, bzs)
         yi = np.arange(0., maxslowg + sls, sls)
@@ -154,10 +154,11 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             sl = slowgrid[:, 1]
             bz = slowgrid[:, 0]
             slowg = slowgrid[:, 2]
-            grid = interpolate.griddata(np.array(bz, sl), slowg,
+            grid = interpolate.griddata((bz, sl), slowg,
                                         (grid_x, grid_y),
                                         method='nearest')
-            ax.pcolormesh(np.radians(xi), yi, grid, cmap=cmap)
+            ax.pcolormesh(np.radians(grid_x), grid_y, grid, cmap=cmap)
+            ax.arrow(np.radians(baz[i]), 0, 0, slow[i], width = 0.015, edgecolor = 'black', facecolor = 'black', lw = 1, zorder = 2)
             # ax.contourf(np.radians(xi), yi, grid, cmap=cmap)
             if array_r:
                 level = np.arange(0.1, 0.7, 0.1)
@@ -165,10 +166,10 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                 tsl = transgrid[:, 1]
                 tbz = transgrid[:, 0]
                 transg = transgrid[:, 2]
-                trans = interpolate.griddata(np.array(tbz, tsl), transg,
+                trans = interpolate.griddata((tbz, tsl), transg,
                                              (grid_x, grid_y),
                                              method='nearest')
-                ax.contour(np.radians(xi), yi, trans, levels=level, colors='w',
+                ax.contour(np.radians(grid_x), grid_y, trans, levels=level, colors='w',
                            alpha=0.5)
 
             ax.set_xticks([0., np.pi/2., np.pi, 3./2.*np.pi])
@@ -530,9 +531,9 @@ class BeamformerResult(object):
 
         # circle through backazimuth
         for i, row in enumerate(hist):
-            ax.bar(left=(i * dw) * np.ones(slowness_bins),
+            ax.bar((i * dw) * np.ones(slowness_bins),
                    height=dh * np.ones(slowness_bins),
-                   width=dw, bottom=dh * np.arange(slowness_bins),
+                   width=dw, bottom=dh * np.arange(slowness_bins),align="edge",
                    color=cmap(row / hist.max()))
 
         ax.set_xticks(np.linspace(0, 2 * np.pi, 4, endpoint=False))

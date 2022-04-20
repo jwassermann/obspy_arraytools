@@ -54,6 +54,7 @@ def _get_stream_offsets(stream, stime, etime):
     :param etime: End time
     :returns: start and end sample offset arrays
     """
+    stream = stream.sort()
     spoint = np.empty(len(stream), dtype=np.int32, order="C")
     epoint = np.empty(len(stream), dtype=np.int32, order="C")
     for i, tr in enumerate(stream):
@@ -159,6 +160,7 @@ class SeismicArray(object):
         :type stream: :class:`~obspy.core.stream.Stream`
         """
         inv = self.inventory
+        stream = stream.sort()
         # check what station/channel IDs are in the data
         stations_present = list(set(tr.id for tr in stream))
         # delete all channels that are not represented
@@ -230,23 +232,26 @@ class SeismicArray(object):
         :meth:`obspy.core.inventory.inventory.Inventory.plot` method.
         """
         # Piggy-back on the inventory plotting. Currently requires basemap.
-        fig = self.inventory.plot(projection=projection, show=False,
-                                  method="basemap", **kwargs)
-        bmap = fig.bmap
+        fig = self.inventory.plot(projection=projection, show=False, **kwargs)
+                                  #method="basemap", **kwargs)
+        #bmap = fig.bmap
 
         path_effects = [patheffects.withStroke(linewidth=3,
                                                foreground="white")]
 
         grav = self.center_of_gravity
-        x, y = bmap(grav["longitude"], grav["latitude"])
-        bmap.scatter(x, y, marker="x", c="blue", s=100, zorder=201,
+        #x, y = bmap(grav["longitude"], grav["latitude"])
+        x = grav["longitude"]; y=grav["latitude"]
+        bmp = fig.axes[0]
+        bmp.scatter(x, y, marker="x", c="blue", s=100, zorder=201,
                      linewidths=2)
         bmap.ax.text(x, y, " Center of Gravity", color="blue", ha="left",
                      weight="heavy", zorder=200,
                      path_effects=path_effects)
 
         geo = self.geometrical_center
-        x, y = bmap(geo["longitude"], geo["latitude"])
+        #x, y = bmap(geo["longitude"], geo["latitude"])
+        x = geo["longitude"]; y= geo["latitude"]
         bmap.scatter(x, y, marker="x", c="green", s=100, zorder=201,
                      linewidths=2)
         bmap.ax.text(x, y, "Geometrical Center ", color="green", ha="right",
@@ -540,9 +545,12 @@ class SeismicArray(object):
                 combinations.
         """
         if any([_i is None for _i in [latitude, longitude, absolute_height]]):
-            latitude = self.geometrical_center["latitude"]
-            longitude = self.geometrical_center["longitude"]
-            absolute_height = self.geometrical_center["absolute_height_in_km"]
+            #latitude = self.geometrical_center["latitude"]
+            #longitude = self.geometrical_center["longitude"]
+            #absolute_height = self.geometrical_center["absolute_height_in_km"]
+            latitude = self.center_of_gravity["latitude"]
+            longitude = self.center_of_gravity["longitude"]
+            absolute_height = self.center_of_gravity["absolute_height_in_km"]
         geom = self._get_geometry_xyz(latitude, longitude,
                                       absolute_height)
 
@@ -642,6 +650,7 @@ class SeismicArray(object):
                  max_beam: :class:`numpy.ndarray` of beam with maximum coherency.
                  fig: :class:`matplotlib.pyplot.figure` of vespagramm.
         """
+        stream = stream.sort()
         if reference == 'center_of_gravity':
             center_ = self.center_of_gravity
         elif reference == 'geometrical_center':
@@ -1160,6 +1169,7 @@ class SeismicArray(object):
          Further plotting otions are attached to the returned object.
         :rtype: :class:`~obspy.signal.array_analysis.BeamformerResult`
         """
+        stream = stream.sort()
         if method not in ("FK", "CAPON", "DLS", "PWS", "SWP"):
             raise ValueError("Invalid method: ''" % method)
 
@@ -2679,8 +2689,8 @@ class SeismicArray(object):
                 geom_array[_i, 2] = value["z"]
         except KeyError:
             for _i, (key, value) in enumerate(sorted(list(geometry.items()))):
-                geom_array[_i, 0] = float(value["latitude"])
-                geom_array[_i, 1] = float(value["longitude"])
+                geom_array[_i, 0] = float(value["longitude"])
+                geom_array[_i, 1] = float(value["latitude"])
                 geom_array[_i, 2] = value["absolute_height_in_km"]
         return geom_array
 
