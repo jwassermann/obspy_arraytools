@@ -21,6 +21,8 @@ from matplotlib.ticker import MaxNLocator, MultipleLocator
 from obspy.core import UTCDateTime
 from obspy.imaging import cm
 
+import gif
+
 
 def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                         filename_patterns, baz_plot, method, array_r,
@@ -157,7 +159,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             grid = interpolate.griddata((bz, sl), slowg,
                                         (grid_x, grid_y),
                                         method='nearest')
-            ax.pcolormesh(np.radians(grid_x), grid_y, grid, cmap=cmap)
+            ax.pcolormesh(np.radians(grid_x), grid_y, grid, cmap=cmap,shading='auto')
             ax.arrow(np.radians(baz[i]), 0, 0, slow[i], width = 0.015, edgecolor = 'black', facecolor = 'black', lw = 1, zorder = 2)
             # ax.contourf(np.radians(xi), yi, grid, cmap=cmap)
             if array_r:
@@ -185,7 +187,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             # this is to plot the vector from 0,0 to maximum
             slow_y = np.cos((baz[i] + 180.) * np.pi / 180.) * slow[i]
             slow_x = np.sin((baz[i] + 180.) * np.pi / 180.) * slow[i]
-            ax.pcolormesh(slx, sly, powmap[i].T)
+            ax.pcolormesh(slx, sly, powmap[i].T,shading='auto')
             ax.arrow(0, 0, slow_x, slow_y, head_width=0.005,
                      head_length=0.01, fc='k', ec='k')
             if array_r:
