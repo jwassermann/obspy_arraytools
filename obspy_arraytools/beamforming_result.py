@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#loadimage!/usr/bin/env python
 """
 Seismic array class.
 
@@ -17,12 +17,18 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import MaxNLocator, MultipleLocator
+import matplotlib.animation as animation
+from matplotlib.gridspec import GridSpec
+from PIL import Image
+import os
+import pyglet
 
 from obspy.core import UTCDateTime
 from obspy.imaging import cm
 
-import gif
-
+plt.rcParams["figure.figsize"] = (15,15)
+plt.rcParams["lines.linewidth"] = 2
+plt.rc('legend', fontsize=12)
 
 def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                         filename_patterns, baz_plot, method, array_r,
@@ -92,8 +98,13 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     df = st_workon[0].stats.sampling_rate
     tt = np.linspace(0, npts / df, len(st_workon[0].data))
 
+    filenames = []
+
     # if we choose windowlen > 0. we now move through our slices
     for i in range(numslice):
+        fig = plt.figure()
+        ax0 = fig.add_axes([0.1, 0.87, 0.7, 0.10])
+
         st = UTCDateTime(t[i]) - starttime
         if wlen <= 0:
             en = endtime
@@ -101,29 +112,28 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             en = st + wlen
         print(UTCDateTime(t[i]))
         # add trace  axes
-        fig = plt.figure(figsize=(12, 12))
-        ax1 = fig.add_axes([0.1, 0.87, 0.7, 0.10])
+        ##fig = plt.figure(figsize=(12, 12))
+        ##ax1 = fig.add_axes([0.1, 0.87, 0.7, 0.10])
         # here we plot the first trace on top of the slowness map
         # and indicate the possibiton of the lsiding window as green box
         if method == 'FK':
-            ax1.plot(tt, st_workon[0].data, 'k')
+            ax0.plot(tt, st_workon[0].data, 'k')
             if wlen > 0.:
                 try:
-                    ax1.axvspan(st, en, facecolor='g', alpha=0.3)
+                    ax0.axvspan(st, en, facecolor='g', alpha=0.3)
                 except IndexError:
                     pass
         else:
             tt = np.linspace(0, len(trace[i]) / df, len(trace[i]))
-            ax1.plot(tt, trace[i], 'k')
+            ax0.plot(tt, trace[i], 'k')
 
-        ax1.yaxis.set_major_locator(MaxNLocator(3))
-
+        ax0.yaxis.set_major_locator(MaxNLocator(3))
         # if we have chosen the baz_plot option a re-griding
         # of the sx,sy slowness map is needed
         if baz_plot:
-            ax = fig.add_axes([0.10, 0.1, 0.70, 0.7], polar=True)
-            ax.set_theta_direction(-1)
-            ax.set_theta_zero_location("N")
+            ax1 = fig.add_axes([0.10, 0.1, 0.70, 0.7], polar=True)
+            ax1.set_theta_direction(-1)
+            ax1.set_theta_zero_location("N")
             slowgrid = []
             transgrid = []
             power = np.asarray(powmap[i])
@@ -159,8 +169,8 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             grid = interpolate.griddata((bz, sl), slowg,
                                         (grid_x, grid_y),
                                         method='nearest')
-            ax.pcolormesh(np.radians(grid_x), grid_y, grid, cmap=cmap,shading='auto')
-            ax.arrow(np.radians(baz[i]), 0, 0, slow[i], width = 0.015, edgecolor = 'black', facecolor = 'black', lw = 1, zorder = 2)
+            ax1.pcolormesh(np.radians(grid_x), grid_y, grid, cmap=cmap,shading='auto')
+            ax1.arrow(np.radians(baz[i]), 0, 0, slow[i], head_width = 0.005, head_length=0.01,edgecolor = 'black', facecolor = 'black')
             # ax.contourf(np.radians(xi), yi, grid, cmap=cmap)
             if array_r:
                 level = np.arange(0.1, 0.7, 0.1)
@@ -171,42 +181,82 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                 trans = interpolate.griddata((tbz, tsl), transg,
                                              (grid_x, grid_y),
                                              method='nearest')
-                ax.contour(np.radians(grid_x), grid_y, trans, levels=level, colors='w',
+                ax1.contour(np.radians(grid_x), grid_y, trans, levels=level, colors='w',
                            alpha=0.5)
 
-            ax.set_xticks([0., np.pi/2., np.pi, 3./2.*np.pi])
-            ax.grid(color='w')
-            ax.set_xticklabels(['N', 'E', 'S', 'W'])
+            ax1.set_xticks([0., np.pi/2., np.pi, 3./2.*np.pi])
+            ax1.grid(color='w')
+            ax1.set_xticklabels(['N', 'E', 'S', 'W'])
             # ax.set_xlim(0,360)
             # ax.set_ylim(yi[0], yi[-1])
-            ax.set_ylim(0, maxslowg)
+            ax1.set_ylim(0, maxslowg)
         else:
-            ax = fig.add_axes([0.10, 0.1, 0.70, 0.7])
-            ax.set_xlabel('slowness [s/deg]')
-            ax.set_ylabel('slowness [s/deg]')
+            ax1 = fig.add_axes([0.10, 0.1, 0.70, 0.7])
+            ax1.set_xlabel('slowness [s/deg]')
+            ax1.set_ylabel('slowness [s/deg]')
             # this is to plot the vector from 0,0 to maximum
             slow_y = np.cos((baz[i] + 180.) * np.pi / 180.) * slow[i]
             slow_x = np.sin((baz[i] + 180.) * np.pi / 180.) * slow[i]
-            ax.pcolormesh(slx, sly, powmap[i].T,shading='auto')
-            ax.arrow(0, 0, slow_x, slow_y, head_width=0.005,
+            ax1.pcolormesh(slx, sly, powmap[i].T,shading='auto')
+            ax1.arrow(0, 0, slow_x, slow_y, head_width=0.005,
                      head_length=0.01, fc='k', ec='k')
             if array_r:
                 try:
                     # level = np.arange(0.1, 0.6, 0.1)
-                    ax.contour(slll+slow_x, slll+slow_y, transff.T,
+                    ax1.contour(slll+slow_x, slll+slow_y, transff.T,
                                10, colors='w', alpha=0.5)
                 except:
                     pass
 
-            ax.set_xlim(slx[0], slx[-1])
-            ax.set_ylim(sly[0], sly[-1])
+            ax1.set_xlim(slx[0], slx[-1])
+            ax1.set_ylim(sly[0], sly[-1])
+
         new_time = t[i]
 
         result = "BAZ: %.2f, Slow: %.2f s/deg, Time %s" % (
             baz[i], slow[i], UTCDateTime(new_time))
-        ax.set_title(result)
-        plt.show()
+        ax0.set_title(result)
 
+        # create file name and append it to a list
+        filename = f'{i}.png'
+        filenames.append(filename)
+    
+        # save frame
+        plt.savefig(filename,dpi=150)
+        plt.close('all')
+
+    if numslice > 1:
+        images = []
+        for filename in filenames:
+            frame = Image.open(filename)
+            images.append(frame)
+            os.remove(filename)
+
+        # Save the frames as an animated GIF
+        images[0].save('mygif.gif',
+               save_all=True,quality=95,subsampling=0,
+               append_images=images[1:],
+               duration=1000,
+               loop=1)
+
+        ag_file = "mygif.gif"
+        animation = pyglet.resource.animation(ag_file)
+        sprite = pyglet.sprite.Sprite(animation)
+
+        # create a window and set it to the image size
+        win = pyglet.window.Window(width=sprite.width, height=sprite.height)
+
+        # set window background color = r, g, b, alpha
+        # each value goes from 0.0 to 1.0
+        green = 0, 1, 0, 1
+        pyglet.gl.glClearColor(*green)
+
+        @win.event
+        def on_draw():
+            win.clear()
+            sprite.draw()
+
+        pyglet.app.run()
 
 class BeamformerResult(object):
     """
@@ -565,8 +615,8 @@ class BeamformerResult(object):
         # powers:
         for data, lab in zip(reversed(datas), reversed(labels)):
             if data is None:
-                datas.remove(data)
-                labels.remove(lab)
+                datas.remove(any(data))
+                labels.remove(any(lab))
 
         xlocator = mdates.AutoDateLocator(interval_multiples=True)
         ymajorlocator = MultipleLocator(90)
@@ -782,7 +832,7 @@ class BeamformerResult(object):
          function should be plotted. Defaults to the minimum and maximum of the
          frequency range used in the generation of this results object.
         """
-        from obspy.signal.array_analysis import SeismicArray
+        from .seismic_array import SeismicArray
 
         if plot_freqs is None:
             plot_freqs = [self.freqs[0], self.freqs[-1]]
@@ -805,7 +855,7 @@ class BeamformerResult(object):
         Plot an x-y transfer function of the array used to produce this
         result, as a function of the set slowness and frequency ranges.
         """
-        from obspy.signal.array_analysis import SeismicArray
+        from .seismic_array import SeismicArray
 
         # Need absolute values:
         absolute_slownesses = [abs(_) for _ in self.slowness_range]

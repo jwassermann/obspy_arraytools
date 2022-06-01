@@ -234,30 +234,30 @@ class SeismicArray(object):
         # Piggy-back on the inventory plotting. Currently requires basemap.
         fig = self.inventory.plot(projection=projection, show=False, **kwargs)
                                   #method="basemap", **kwargs)
-        #bmap = fig.bmap
+        bmap = fig.bmap
 
         path_effects = [patheffects.withStroke(linewidth=3,
                                                foreground="white")]
 
         grav = self.center_of_gravity
-        #x, y = bmap(grav["longitude"], grav["latitude"])
-        x = grav["longitude"]; y=grav["latitude"]
+        x, y = bmap(grav["longitude"], grav["latitude"])
+        #x = grav["longitude"]; y=grav["latitude"]
         bmp = fig.axes[0]
         bmp.scatter(x, y, marker="x", c="blue", s=100, zorder=201,
                      linewidths=2)
-        bmap.ax.text(x, y, " Center of Gravity", color="blue", ha="left",
+        bmp.text(x, y, " Center of Gravity", color="blue", ha="left",
                      weight="heavy", zorder=200,
                      path_effects=path_effects)
 
         geo = self.geometrical_center
-        #x, y = bmap(geo["longitude"], geo["latitude"])
-        x = geo["longitude"]; y= geo["latitude"]
-        bmap.scatter(x, y, marker="x", c="green", s=100, zorder=201,
+        x, y = bmap(geo["longitude"], geo["latitude"])
+        #x = geo["longitude"]; y= geo["latitude"]
+        bmp.scatter(x, y, marker="x", c="green", s=100, zorder=201,
                      linewidths=2)
-        bmap.ax.text(x, y, "Geometrical Center ", color="green", ha="right",
+        bmp.text(x, y, "Geometrical Center ", color="green", ha="right",
                      fontweight=900, zorder=200, path_effects=path_effects)
 
-        bmap.ax.set_title(str(self).splitlines()[0].strip())
+        bmp.set_title(str(self).splitlines()[0].strip())
 
         if show:
             plt.show()
@@ -2527,7 +2527,6 @@ class SeismicArray(object):
             if store is not None:
                 store(abspow_map, beam_max, count)
             count += 1
-            print(count)
             # here we compute baz, slow
             slow_x = sll_x + ix * sl_s
             slow_y = sll_y + iy * sl_s
