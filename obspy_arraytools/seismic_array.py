@@ -40,7 +40,6 @@ from .beamforming_result import plot_array_analysis
 from .array_rotation_strain import \
     array_rotation_strain
 
-KM_PER_DEG = 111.1949
 
 
 def _get_stream_offsets(stream, stime, etime):
@@ -461,7 +460,7 @@ class SeismicArray(object):
         return geometry
 
     def _get_timeshift_baz(self, sll, slm, sls, baz, latitude, longitude,
-                           absolute_height_in_km, static3d=False, vel_cor=4.0):
+                           absolute_height_in_km, static3d=False, vel_cor=4.0, sec_km=False):
         """
         Returns timeshift table for the geometry of the current array, in
         kilometres relative to a given centre (uses geometric centre if not
@@ -483,6 +482,8 @@ class SeismicArray(object):
             vel_cor the correction is done according to the formula:
             t = rxy*s - rz*cos(inc)/vel_cor
             where inc is defined by inc = asin(vel_cor*slow)
+        :param sec_km: switch for slowness in and output. If true s/km values are expected
+                       if false (default) than s/degree are used
         :return Dictionary with time differences relative to reference point.
             The station names are given in the keys and a lost of time
             differences for each slowness step is given in the items.
@@ -491,6 +492,11 @@ class SeismicArray(object):
         geom = self._get_geometry_xyz(latitude, longitude,
                                       absolute_height_in_km)
         baz = math.pi * baz / 180.0
+        if sec_km:
+            KM_PER_DEG = 1.
+        else:
+            KM_PER_DEG = 111.1949
+
 
         time_shift_tbl = {}
         slownesses = np.arange(sll, slm + sls, sls)
@@ -519,7 +525,7 @@ class SeismicArray(object):
 
     def _get_timeshift(self, sllx, slly, sls, grdpts_x, grdpts_y,
                        latitude=None, longitude=None, absolute_height=None,
-                       vel_cor=4., static3d=False):
+                       vel_cor=4., static3d=False, sec_km = False):
         """
         Returns timeshift table for the geometry of the current array, in
         kilometres relative to a given centre (uses geometric centre if not
@@ -539,11 +545,18 @@ class SeismicArray(object):
             vel_cor the correction is done according to the formula:
             t = rxy*s - rz*cos(inc)/vel_cor
             where inc is defined by inc = asin(vel_cor*slow)
-
+        :type sec_km: bool
+        :param sec_km: switch for slowness in and output. If true s/km values are expected
+                       if false (default) than s/degree are used
         :return 2D timeshift table for each station in the array. Each table
                 gives the timeshift for all slowness_x and slowness_y
                 combinations.
         """
+        if sec_km == True:
+            KM_PER_DEG = 1.
+        else:
+            KM_PER_DEG = 111.1949
+
         if any([_i is None for _i in [latitude, longitude, absolute_height]]):
             #latitude = self.geometrical_center["latitude"]
             #longitude = self.geometrical_center["longitude"]
@@ -861,7 +874,7 @@ class SeismicArray(object):
 
     def slowness_whitened_power(self, stream, frqlow, frqhigh,
                                 prefilter=True, plots=(),
-                                static3d=False, array_response=False,
+                                static3d=False, sec_km=False,array_response=False,
                                 vel_corr=4.8, wlen=-1, wfrac=1.,
                                 slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -878,6 +891,8 @@ class SeismicArray(object):
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
         :type static3d: bool
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
         :param vel_corr: Correction velocity for static topography correction
@@ -906,7 +921,7 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="SWP",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,
+                                           static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
@@ -914,7 +929,7 @@ class SeismicArray(object):
 
     def phase_weighted_stack(self, stream, frqlow, frqhigh,
                              prefilter=True, plots=(),
-                             static3d=False, array_response=False,
+                             static3d=False,sec_km=False, array_response=False,
                              vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                              sly=(-10, 10), sls=0.5):
         """
@@ -930,6 +945,8 @@ class SeismicArray(object):
         :type frqhigh: float
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :type static3d: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
@@ -959,14 +976,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="PWS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,
+                                           static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def delay_and_sum(self, stream, frqlow, frqhigh,
-                      prefilter=True, plots=(), static3d=False,
+                      prefilter=True, plots=(), static3d=False,sec_km=False,
                       array_response=False,
                       vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                       sly=(-10, 10), sls=0.5):
@@ -983,6 +1000,8 @@ class SeismicArray(object):
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
         :type static3d: bool
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
         :param vel_corr: Correction velocity for static topography correction
@@ -1011,14 +1030,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="DLS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,
+                                           static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def fk_analysis(self, stream, frqlow, frqhigh,
-                    prefilter=True, plots=(), static3d=False,
+                    prefilter=True, plots=(), static3d=False,sec_km=False,
                     array_response=False,
                     vel_corr=4.8, wlen=-1, wfrac=0.8,
                     slx=(-10, 10), sly=(-10, 10), sls=0.5):
@@ -1036,6 +1055,8 @@ class SeismicArray(object):
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
         :type static3d: bool
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
         :param vel_corr: Correction velocity for static topography correction
@@ -1063,14 +1084,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="FK",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,
+                                           static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def capon_estimator(self, stream, frqlow, frqhigh,
-                        prefilter=True, plots=(), static3d=False,
+                        prefilter=True, plots=(), static3d=False,sec_km=False,
                         array_response=False,
                         vel_corr=4.8, wlen=-1, wfrac=0.8,
                         slx=(-10, 10), sly=(-10, 10), sls=0.5):
@@ -1088,6 +1109,8 @@ class SeismicArray(object):
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
         :type static3d: bool
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
         :param vel_corr: Correction velocity for static topography correction
@@ -1115,14 +1138,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="CAPON",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,
+                                           static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def _array_analysis_helper(self, stream, method, frqlow, frqhigh,
-                               prefilter=True, static3d=False, array_r=False,
+                               prefilter=True, static3d=False, sec_km=False,array_r=False,
                                vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),
                                sly=(-10, 10), sls=0.5,
                                plots=()):
@@ -1147,6 +1170,8 @@ class SeismicArray(object):
         :param static3d: static correction of topography using `vel_corr` as
          velocity (slow!)
         :type static3d: bool
+        :param sec_km: switch for input in s/km rather s/deg
+        :type sec_km: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -1208,7 +1233,8 @@ class SeismicArray(object):
                 warnings.warn("No filtering done. Param 'prefilter' is False.")
         # Making the map plots is efficiently done by saving the power maps to
         # a temporary directory.
-        tmpdir = tempfile.mkdtemp(prefix="obspy-")
+        tmpdir = "/tmp/obspy-%s"%UTCDateTime()
+        os.mkdir(tmpdir)
         filename_patterns = (os.path.join(tmpdir, 'pow_map_%03d.npy'),
                              os.path.join(tmpdir, 'apow_map_%03d.npy'))
         if make_slow_map or make_slowness_xy:
@@ -1226,9 +1252,9 @@ class SeismicArray(object):
         invbkp = copy.deepcopy(self.inventory)
         self.inventory_cull(st_workon)
         if array_r:
-            sll = np.max(np.absolute([sllx, slly, slmx, slmy]))
+            msll = np.max(np.absolute([sllx, slly, slmx, slmy]))
             frqstep = (frqhigh - frqlow) / 10.
-            transff = self.array_transfer_function_freqslowness(sll, sls,
+            transff = self.array_transfer_function_freqslowness(msll, sls,
                                                                 frqlow,
                                                                 frqhigh,
                                                                 frqstep)
@@ -1251,7 +1277,7 @@ class SeismicArray(object):
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
                     method=0, correct_3dplane=False, vel_cor=vel_corr,
-                    static3d=static3d)
+                    static3d=static3d,sec_km=sec_km)
 
                 # here we do the array processing
                 start = UTCDateTime()
@@ -1273,7 +1299,7 @@ class SeismicArray(object):
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
                     method=1, correct_3dplane=False, vel_cor=vel_corr,
-                    static3d=static3d)
+                    static3d=static3d,sec_km=sec_km)
 
                 # here we do the array processing
                 start = UTCDateTime()
@@ -1294,13 +1320,14 @@ class SeismicArray(object):
                     nthroot=4, method=method,
                     verbose=False, timestamp='julsec',
                     stime=starttime, etime=endtime, vel_cor=vel_corr,
-                    static3d=False)
+                    static3d=static3d,sec_km=sec_km)
 
                 # here we do the array processing
                 start = UTCDateTime()
                 outarr = self._beamforming(st_workon, **kwargs)
                 print("Total time in routine: %f\n" % (UTCDateTime() - start))
                 t, rel_power, abs_power, baz, slow = outarr.T
+                print(outarr.T)
                 # abs_power = None
 
             baz[baz < 0.0] += 360
@@ -1328,13 +1355,13 @@ class SeismicArray(object):
                 plot_array_analysis(outarr, transff, sllx, slmx, slly, slmy,
                                     sls, filename_patterns, True,
                                     method, array_r, st_workon, starttime,
-                                    wlen, endtime)
+                                    wlen, endtime,sec_km)
                 plt.show()
             if "slowness_xy" in plots:
                 plot_array_analysis(outarr, transff, sllx, slmx, slly, slmy,
                                     sls, filename_patterns, False, method,
                                     array_r, st_workon, starttime, wlen,
-                                    endtime)
+                                    endtime,sec_km)
 
                 plt.show()
             # Return the beamforming results to allow working more on them,
@@ -1383,7 +1410,7 @@ class SeismicArray(object):
                                      prewhiten, verbose=False,
                                      timestamp='mlabday', method=0,
                                      correct_3dplane=False, vel_cor=4.,
-                                     static3d=False, store=None):
+                                     static3d=False,store=None,sec_km=False):
         """
         Method for FK-Analysis/Capon
 
@@ -1433,6 +1460,9 @@ class SeismicArray(object):
             vel_cor the correction is done according to the formula:
             t = rxy*s - rz*cos(inc)/vel_cor
             where inc is defined by inc = asin(vel_cor*slow)
+        :type sec_km: bool
+        :param sec_km: switch to select betweed s/deg input (false - default) 
+               s/km input(true)
         :type store: function
         :param store: A custom function which gets called on each iteration.
             It is called with the relative power map and the time offset as
@@ -1468,7 +1498,7 @@ class SeismicArray(object):
         time_shift_table = self._get_timeshift(sll_x, sll_y, sl_s,
                                                grdpts_x, grdpts_y,
                                                vel_cor=vel_cor,
-                                               static3d=static3d)
+                                               static3d=static3d,sec_km=sec_km)
 
         spoint, _epoint = _get_stream_offsets(stream, stime, etime)
 
@@ -2298,7 +2328,7 @@ class SeismicArray(object):
                      frqhigh, stime, etime, win_len=-1, win_frac=0.5,
                      verbose=False, timestamp='mlabday',
                      method="DLS", nthroot=1, store=None,
-                     correct_3dplane=False, static3d=False, vel_cor=4.):
+                     correct_3dplane=False, static3d=False, sec_km=False,vel_cor=4.):
         """
         Method for Delay and Sum/Phase Weighted Stack/Whitened Slowness Power
 
@@ -2338,6 +2368,8 @@ class SeismicArray(object):
          the inc angle is slowness dependend and thus must
          be estimated for each grid-point:
             inc = asin(v_cor*slow)
+        :type sec_km: bool
+        :param sec_km: switch for either s/deg (default - false) or s/km input (true
         :param vel_cor: Velocity for the upper layer (static correction)
          in km/s.
         :return: numpy.ndarray of timestamp, relative relpow, absolute relpow,
@@ -2350,7 +2382,7 @@ class SeismicArray(object):
         fs = stream[0].stats.sampling_rate
         nstat = len(stream)
         if len(stream) != len(stream.select(sampling_rate=fs)):
-            msg = 'in sonic sampling rates of traces in stream are not equal'
+            msg = 'sampling rates of traces in stream are not equal'
             raise ValueError(msg)
 
         # loop with a sliding window over the dat trace array and apply bbfk
@@ -2373,7 +2405,7 @@ class SeismicArray(object):
         time_shift_table = self._get_timeshift(sll_x, sll_y, sl_s,
                                                grdpts_x, grdpts_y,
                                                vel_cor=vel_cor,
-                                               static3d=static3d)
+                                               static3d=static3d,sec_km=sec_km)
 
         mini = np.min(time_shift_table[:, :, :])
         maxi = np.max(time_shift_table[:, :, :])
@@ -2415,7 +2447,7 @@ class SeismicArray(object):
                                 if len(shifted) < nsamp:
                                     shifted = np.pad(
                                         shifted, (0, nsamp - len(shifted)),
-                                        'constant', constant_values=(0, 1))
+                                        'mean') #'constant, constant_values=(0, 1))
                                 singlet += 1. / nstat * np.sum(shifted *
                                                                shifted)
                                 beam += 1. / nstat * np.power(
@@ -2425,6 +2457,7 @@ class SeismicArray(object):
                                 break
                         beam = np.power(np.abs(beam), nthroot) * \
                             beam / np.abs(beam)
+                        beam=np.nan_to_num(beam)
                         bs = np.sum(beam * beam)
                         abspow_map[x, y] = bs / singlet
                         if abspow_map[x, y] > max_beam:
@@ -2468,6 +2501,7 @@ class SeismicArray(object):
                                 beam += np.pad(temp, (0, beam.shape[0] -
                                                       temp.shape[0]),
                                                'constant')
+                        beam=np.nan_to_num(beam)
                         bs = np.sum(beam * beam)
                         abspow_map[x, y] = bs / singlet
                         if abspow_map[x, y] > max_beam:
@@ -2536,8 +2570,19 @@ class SeismicArray(object):
                 slow = 1e-8
             azimut = 180 * math.atan2(slow_x, slow_y) / math.pi
             baz = azimut % -360 + 180
-            res.append(
-                np.array([newstart.timestamp, abspow, abspow, baz, slow]))
+            if timestamp == 'julsec':
+                outtime = newstart
+            elif timestamp == 'mlabday':
+                # 719163 == days between 1970 and 0001 + 1
+                outtime = UTCDateTime(newstart.timestamp /
+                                      (24. * 3600) + 719163)
+            else:
+                msg = "Option timestamp must be one of 'julsec'," \
+                      " or 'mlabday'"
+                raise ValueError(msg)
+            res.append(np.array([outtime, abspow, abspow, baz,
+                                     slow]))
+
             if verbose:
                 print(newstart, (newstart + (nsamp / fs)), res[-1][1:])
             if (newstart + (nsamp + nstep) / fs) > etime:
@@ -2545,15 +2590,15 @@ class SeismicArray(object):
             offset += nstep
 
             newstart += nstep / fs
-        res = np.array(res)
-        if timestamp == 'julsec':
-            pass
-        elif timestamp == 'mlabday':
-            # 719162 == hours between 1970 and 0001
-            res[:, 0] = res[:, 0] / (24. * 3600) + 719162
-        else:
-            msg = "Option timestamp must be one of 'julsec', or 'mlabday'"
-            raise ValueError(msg)
+
+        #if timestamp == 'julsec':
+        #    pass
+        #elif timestamp == 'mlabday':
+        #    # 719162 == hours between 1970 and 0001
+        #    res[:, 0] = res[:, 0] / (24. * 3600) + 719162
+        #else:
+        #    msg = "Option timestamp must be one of 'julsec', or 'mlabday'"
+        #    raise ValueError(msg)
         return np.array(res)
 
     @staticmethod

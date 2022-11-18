@@ -1,4 +1,4 @@
-#loadimage!/usr/bin/env python
+#!/usr/bin/env python
 """
 Seismic array class.
 
@@ -30,9 +30,65 @@ plt.rcParams["figure.figsize"] = (15,15)
 plt.rcParams["lines.linewidth"] = 2
 plt.rc('legend', fontsize=12)
 
+
+def log_progress(sequence, every=None, size=None, name='Items'):
+    from ipywidgets import IntProgress, HTML, VBox
+    from IPython.display import display
+
+    is_iterator = False
+    if size is None:
+        try:
+            size = len(sequence)
+        except TypeError:
+            is_iterator = True
+    if size is not None:
+        if every is None:
+            if size <= 200:
+                every = 1
+            else:
+                every = int(size / 200)     # every 0.5%
+    else:
+        assert every is not None, 'sequence is iterator, set every'
+
+    if is_iterator:
+        progress = IntProgress(min=0, max=1, value=1)
+        progress.bar_style = 'info'
+    else:
+        progress = IntProgress(min=0, max=size, value=0)
+    label = HTML()
+    box = VBox(children=[label, progress])
+    display(box)
+
+    index = 0
+    try:
+        for index, record in enumerate(sequence, 1):
+            if index == 1 or index % every == 0:
+                if is_iterator:
+                    label.value = '{name}: {index} / ?'.format(
+                        name=name,
+                        index=index
+                    )
+                else:
+                    progress.value = index
+                    label.value = u'{name}: {index} / {size}'.format(
+                        name=name,
+                        index=index,
+                        size=size
+                    )
+            yield record
+    except:
+        progress.bar_style = 'danger'
+        raise
+    else:
+        progress.bar_style = 'success'
+        progress.value = index
+        label.value = "{name}: {index}".format(
+            name=name,
+            index=str(index or '?')
+        )
 def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                         filename_patterns, baz_plot, method, array_r,
-                        st_workon, starttime, wlen, endtime):
+                        st_workon, starttime, wlen, endtime,sec_km):
     """
     Some plotting taken out from _array_analysis_helper. Can't do the array
     response overlay now though.
@@ -72,6 +128,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     numslice = len(t)
     powmap = []
 
+    # we have to rescale this for plotting ....
     slx = np.arange(sllx - sls, slmx, sls)
     sly = np.arange(slly - sls, slmy, sls)
     sll = np.min(np.absolute([sllx, slly, slmx, slmy]))
@@ -101,7 +158,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     filenames = []
 
     # if we choose windowlen > 0. we now move through our slices
-    for i in range(numslice):
+    for i in log_progress(np.arange(numslice),every=1):
         fig = plt.figure()
         ax0 = fig.add_axes([0.1, 0.87, 0.7, 0.10])
 
@@ -110,7 +167,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             en = endtime
         else:
             en = st + wlen
-        print(UTCDateTime(t[i]))
+        #print(UTCDateTime(t[i]))
         # add trace  axes
         ##fig = plt.figure(figsize=(12, 12))
         ##ax1 = fig.add_axes([0.1, 0.87, 0.7, 0.10])
@@ -192,8 +249,12 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             ax1.set_ylim(0, maxslowg)
         else:
             ax1 = fig.add_axes([0.10, 0.1, 0.70, 0.7])
-            ax1.set_xlabel('slowness [s/deg]')
-            ax1.set_ylabel('slowness [s/deg]')
+            if sec_km:
+                ax1.set_xlabel('slowness [s/km]')
+                ax1.set_ylabel('slowness [s/km]')
+            else:
+                ax1.set_xlabel('slowness [s/deg]')
+                ax1.set_ylabel('slowness [s/deg]')
             # this is to plot the vector from 0,0 to maximum
             slow_y = np.cos((baz[i] + 180.) * np.pi / 180.) * slow[i]
             slow_x = np.sin((baz[i] + 180.) * np.pi / 180.) * slow[i]
@@ -213,8 +274,12 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
 
         new_time = t[i]
 
-        result = "BAZ: %.2f, Slow: %.2f s/deg, Time %s" % (
-            baz[i], slow[i], UTCDateTime(new_time))
+        if sec_km:
+            result = "BAZ: %.2f, Slow: %.2f s/km, Time %s" % (
+                baz[i], slow[i], UTCDateTime(new_time))
+        else:
+            result = "BAZ: %.2f, Slow: %.2f s/deg, Time %s" % (
+                baz[i], slow[i], UTCDateTime(new_time))
         ax0.set_title(result)
 
         # create file name and append it to a list
@@ -550,7 +615,10 @@ class BeamformerResult(object):
         from matplotlib.colors import Normalize
         cmap = cm.get_cmap('viridis')
         # Can't plot negative slownesses:
-        sll = abs(self.slowness_range).min()
+        if self.slowness_range.min() < 0:
+            sll=0.
+        else:
+            sll = abs(self.slowness_range).min()
         slm = self.slowness_range.max()
 
         # choose number of azimuth bins in plot
