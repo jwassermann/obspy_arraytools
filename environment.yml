@@ -5,3 +5,4 @@ dependencies:
   - python =3
   - obspy =1.2.0
   - basemap
+  - obspy_arraytools
