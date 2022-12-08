@@ -7,4 +7,4 @@ dependencies:
   - basemap
   - pip
   -pip:
-     
+    - https://github.com/jwassermann/obspy_arraytools/archive/refs/heads/main.zip
