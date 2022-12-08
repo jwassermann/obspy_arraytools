@@ -6,5 +6,5 @@ dependencies:
   - obspy =1.2.0
   - basemap
   - pip
-  -pip:
+  - pip:
     - https://github.com/jwassermann/obspy_arraytools/archive/refs/heads/main.zip
