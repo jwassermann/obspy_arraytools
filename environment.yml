@@ -5,6 +5,7 @@ dependencies:
   - python =3
   - obspy =1.2.0
   - basemap
+  - pyglet
   - pip
   - pip:
     - https://github.com/jwassermann/obspy_arraytools/archive/refs/heads/main.zip
