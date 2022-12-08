@@ -57,11 +57,13 @@ def _get_stream_offsets(stream, stime, etime):
     spoint = np.empty(len(stream), dtype=np.int32, order="C")
     epoint = np.empty(len(stream), dtype=np.int32, order="C")
     for i, tr in enumerate(stream):
-        if tr.stats.starttime > stime:
+        #if tr.stats.starttime > stime:
+        if np.abs(tr.stats.starttime - stime) > tr.stats.sampling_rate:
             msg = "Specified stime %s is smaller than starttime %s " \
                   "in stream"
             raise ValueError(msg % (stime, tr.stats.starttime))
-        if tr.stats.endtime < etime:
+       # if tr.stats.endtime < etime:
+        if np.abs(tr.stats.endtime - etime) > tr.stats.sampling_rate:
             msg = "Specified etime %s is bigger than endtime %s in stream"
             raise ValueError(msg % (etime, tr.stats.endtime))
         # now we have to adjust to the beginning of real start time
@@ -874,7 +876,7 @@ class SeismicArray(object):
 
     def slowness_whitened_power(self, stream, frqlow, frqhigh,
                                 prefilter=True, plots=(),
-                                static3d=False, sec_km=False,array_response=False,
+                                static3d=False, sec_km=False,array_response=False,verbose=False,
                                 vel_corr=4.8, wlen=-1, wfrac=1.,
                                 slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -895,6 +897,8 @@ class SeismicArray(object):
         :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -922,13 +926,13 @@ class SeismicArray(object):
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,
+                                           array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def phase_weighted_stack(self, stream, frqlow, frqhigh,
-                             prefilter=True, plots=(),
+                             prefilter=True, plots=(),verbose=False,
                              static3d=False,sec_km=False, array_response=False,
                              vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                              sly=(-10, 10), sls=0.5):
@@ -950,6 +954,8 @@ class SeismicArray(object):
         :type static3d: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -977,14 +983,14 @@ class SeismicArray(object):
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,
+                                           array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def delay_and_sum(self, stream, frqlow, frqhigh,
                       prefilter=True, plots=(), static3d=False,sec_km=False,
-                      array_response=False,
+                      array_response=False,verbose=False,
                       vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                       sly=(-10, 10), sls=0.5):
         """
@@ -1004,6 +1010,8 @@ class SeismicArray(object):
         :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -1031,7 +1039,7 @@ class SeismicArray(object):
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,
+                                           array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
@@ -1039,7 +1047,7 @@ class SeismicArray(object):
     def fk_analysis(self, stream, frqlow, frqhigh,
                     prefilter=True, plots=(), static3d=False,sec_km=False,
                     array_response=False,
-                    vel_corr=4.8, wlen=-1, wfrac=0.8,
+                    vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                     slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
         FK analysis.
@@ -1059,6 +1067,8 @@ class SeismicArray(object):
         :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -1087,13 +1097,13 @@ class SeismicArray(object):
                                            static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
                                            vel_corr=vel_corr,
-                                           wlen=wlen, wfrac=wfrac,
+                                           wlen=wlen, wfrac=wfrac,verbose=verbose,
                                            slx=slx, sly=sly, sls=sls)
 
     def capon_estimator(self, stream, frqlow, frqhigh,
                         prefilter=True, plots=(), static3d=False,sec_km=False,
                         array_response=False,
-                        vel_corr=4.8, wlen=-1, wfrac=0.8,
+                        vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                         slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
         Capon's high resolution estimator.
@@ -1113,6 +1123,8 @@ class SeismicArray(object):
         :type sec_km: bool
         :param array_response: Specify if array response should be used.
         :type array_response: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -1140,13 +1152,13 @@ class SeismicArray(object):
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
                                            array_r=array_response,
-                                           vel_corr=vel_corr,
+                                           vel_corr=vel_corr,verbose=verbose,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def _array_analysis_helper(self, stream, method, frqlow, frqhigh,
                                prefilter=True, static3d=False, sec_km=False,array_r=False,
-                               vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),
+                               vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),verbose=False,
                                sly=(-10, 10), sls=0.5,
                                plots=()):
         """
@@ -1172,6 +1184,8 @@ class SeismicArray(object):
         :type static3d: bool
         :param sec_km: switch for input in s/km rather s/deg
         :type sec_km: bool
+        :param verbose: Verbose log output
+        :type verbose: bool
         :param vel_corr: Correction velocity for static topography correction
          in km/s.
         :type vel_corr: float
@@ -1222,6 +1236,8 @@ class SeismicArray(object):
         starttime = max([tr.stats.starttime for tr in st_workon])
         endtime = min([tr.stats.endtime for tr in st_workon])
         st_workon.trim(starttime, endtime)
+        st_workon.detrend("linear")
+        st_workon.detrend("simple")
 
         self._attach_coords_to_stream(st_workon)
 
@@ -1273,7 +1289,7 @@ class SeismicArray(object):
                     frqlow=frqlow, frqhigh=frqhigh, prewhiten=0,
                     # restrict output
                     store=dump,
-                    semb_thres=-1e9, vel_thres=-1e9, verbose=False,
+                    semb_thres=-1e9, vel_thres=-1e9, verbose=verbose,
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
                     method=0, correct_3dplane=False, vel_cor=vel_corr,
@@ -1295,7 +1311,7 @@ class SeismicArray(object):
                     frqlow=frqlow, frqhigh=frqhigh, prewhiten=0,
                     # restrict output
                     store=dump,
-                    semb_thres=-1e9, vel_thres=-1e9, verbose=False,
+                    semb_thres=-1e9, vel_thres=-1e9, verbose=verbose,
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
                     method=1, correct_3dplane=False, vel_cor=vel_corr,
@@ -1318,7 +1334,7 @@ class SeismicArray(object):
                     store=dump,
                     win_len=wlen, win_frac=0.5,
                     nthroot=4, method=method,
-                    verbose=False, timestamp='julsec',
+                    verbose=verbose, timestamp='julsec',
                     stime=starttime, etime=endtime, vel_cor=vel_corr,
                     static3d=static3d,sec_km=sec_km)
 

@@ -123,7 +123,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     t, rel_power, abs_power, baz, slow = out.T
     #baz[baz < 0.0] += 360
     # now let's do the plotting
-    cmap = cm.get_cmap('viridis')
+    cmap = cm.get_cmap('inferno')
 
     numslice = len(t)
     powmap = []
@@ -288,9 +288,9 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
     
         # save frame
         plt.savefig(filename,dpi=150)
-        plt.close('all')
 
     if numslice > 1:
+        plt.close('all')
         images = []
         for filename in filenames:
             frame = Image.open(filename)
@@ -322,6 +322,9 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
             sprite.draw()
 
         pyglet.app.run()
+    else:
+        plt.show()
+        plt.close('all')
 
 class BeamformerResult(object):
     """
