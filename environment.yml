@@ -1,0 +1,12 @@
+name: obspy_arraytools
+channels:
+  - conda-forge
+dependencies:
+  - python =3.7
+  - obspy =1.2.2
+  - basemap
+  - cartopy
+  - pyglet
+  - pip
+  - pip:
+    - https://github.com/jwassermann/obspy_arraytools/archive/refs/heads/main.zip
