@@ -1149,7 +1149,7 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="CAPON",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,correct_3dplane,sec_km=sec_km,
+                                           static3d=static3d,correct_3dplane=correct_3dplane,sec_km=sec_km,
                                            array_r=array_response,vel_corr=vel_corr,verbose=verbose,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
