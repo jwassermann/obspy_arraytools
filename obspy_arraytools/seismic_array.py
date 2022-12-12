@@ -875,7 +875,7 @@ class SeismicArray(object):
         return Stream(traces=[tr1, tr2, tr3]), rot
 
     def slowness_whitened_power(self, stream, frqlow, frqhigh,
-                                prefilter=True, plots=(),
+                                prefilter=True, plots=(),correct_3dplane=False,
                                 static3d=False, sec_km=False,array_response=False,verbose=False,
                                 vel_corr=4.8, wlen=-1, wfrac=1.,
                                 slx=(-10, 10), sly=(-10, 10), sls=0.5):
@@ -925,14 +925,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="SWP",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,
+                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def phase_weighted_stack(self, stream, frqlow, frqhigh,
-                             prefilter=True, plots=(),verbose=False,
+                             prefilter=True, plots=(),verbose=False,correct_3dplane=False,
                              static3d=False,sec_km=False, array_response=False,
                              vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                              sly=(-10, 10), sls=0.5):
@@ -982,7 +982,7 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="PWS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,
+                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
@@ -990,7 +990,7 @@ class SeismicArray(object):
 
     def delay_and_sum(self, stream, frqlow, frqhigh,
                       prefilter=True, plots=(), static3d=False,sec_km=False,
-                      array_response=False,verbose=False,
+                      array_response=False,verbose=False,correct_3dplane=False,
                       vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                       sly=(-10, 10), sls=0.5):
         """
@@ -1038,7 +1038,7 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="DLS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,
+                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
@@ -1046,7 +1046,7 @@ class SeismicArray(object):
 
     def fk_analysis(self, stream, frqlow, frqhigh,
                     prefilter=True, plots=(), static3d=False,sec_km=False,
-                    array_response=False,
+                    array_response=False,correct_3dplane=True,
                     vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                     slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -1095,14 +1095,14 @@ class SeismicArray(object):
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,
+                                           array_r=array_response,correct_3dplane = correct_3dplane,
                                            vel_corr=vel_corr,
                                            wlen=wlen, wfrac=wfrac,verbose=verbose,
                                            slx=slx, sly=sly, sls=sls)
 
     def capon_estimator(self, stream, frqlow, frqhigh,
                         prefilter=True, plots=(), static3d=False,sec_km=False,
-                        array_response=False,
+                        array_response=False,correct_3dplane=False,
                         vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                         slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -1151,13 +1151,13 @@ class SeismicArray(object):
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
                                            static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,
+                                           array_r=array_response,correct_3dplane = correct_3dplane,
                                            vel_corr=vel_corr,verbose=verbose,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def _array_analysis_helper(self, stream, method, frqlow, frqhigh,
-                               prefilter=True, static3d=False, sec_km=False,array_r=False,
+                               prefilter=True, static3d=False, sec_km=False,array_r=False,correct_3dplane=False,
                                vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),verbose=False,
                                sly=(-10, 10), sls=0.5,
                                plots=()):
@@ -1292,7 +1292,7 @@ class SeismicArray(object):
                     semb_thres=-1e9, vel_thres=-1e9, verbose=verbose,
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
-                    method=0, correct_3dplane=False, vel_cor=vel_corr,
+                    method=0, correct_3dplane=correct_3dplane, vel_cor=vel_corr,
                     static3d=static3d,sec_km=sec_km)
 
                 # here we do the array processing
@@ -1314,7 +1314,7 @@ class SeismicArray(object):
                     semb_thres=-1e9, vel_thres=-1e9, verbose=verbose,
                     # use mlabday to be compatible with matplotlib
                     timestamp='julsec', stime=starttime, etime=endtime,
-                    method=1, correct_3dplane=False, vel_cor=vel_corr,
+                    method=1, correct_3dplane=correct_3dplane, vel_cor=vel_corr,
                     static3d=static3d,sec_km=sec_km)
 
                 # here we do the array processing
@@ -1334,7 +1334,7 @@ class SeismicArray(object):
                     store=dump,
                     win_len=wlen, win_frac=0.5,
                     nthroot=4, method=method,
-                    verbose=verbose, timestamp='julsec',
+                    verbose=verbose, timestamp='julsec',correct_3dplane = correct_3dplane,
                     stime=starttime, etime=endtime, vel_cor=vel_corr,
                     static3d=static3d,sec_km=sec_km)
 
@@ -1355,14 +1355,14 @@ class SeismicArray(object):
                                        max_rel_power=rel_power,
                                        max_abs_power=abs_power,
                                        max_pow_baz=baz, max_pow_slow=slow,
-                                       method=method,
+                                       method=method,correct_3dplane = correct_3dplane,
                                        timestep=endtime - starttime)
             else:
                 out = BeamformerResult(inventory=self.inventory,
                                        win_starttimes=t,
                                        slowness_range=np.arange(sll, slm, sls),
                                        max_rel_power=rel_power,
-                                       max_abs_power=abs_power,
+                                       max_abs_power=abs_power,correct_3dplane = correct_3dplane,
                                        max_pow_baz=baz, max_pow_slow=slow,
                                        method=method)
 
