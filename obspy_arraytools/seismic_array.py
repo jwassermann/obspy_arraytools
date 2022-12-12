@@ -1353,14 +1353,14 @@ class SeismicArray(object):
                                        max_rel_power=rel_power,
                                        max_abs_power=abs_power,
                                        max_pow_baz=baz, max_pow_slow=slow,
-                                       method=method,correct_3dplane = correct_3dplane,
+                                       method=method,
                                        timestep=endtime - starttime)
             else:
                 out = BeamformerResult(inventory=self.inventory,
                                        win_starttimes=t,
                                        slowness_range=np.arange(sll, slm, sls),
                                        max_rel_power=rel_power,
-                                       max_abs_power=abs_power,correct_3dplane = correct_3dplane,
+                                       max_abs_power=abs_power,
                                        max_pow_baz=baz, max_pow_slow=slow,
                                        method=method)
 
