@@ -875,8 +875,8 @@ class SeismicArray(object):
         return Stream(traces=[tr1, tr2, tr3]), rot
 
     def slowness_whitened_power(self, stream, frqlow, frqhigh,
-                                prefilter=True, plots=(),correct_3dplane=False,
-                                static3d=False, sec_km=False,array_response=False,verbose=False,
+                                prefilter=True, plots=(),
+                                static3d=False,correct_3dplane=False, sec_km=False,array_response=False,verbose=False,
                                 vel_corr=4.8, wlen=-1, wfrac=1.,
                                 slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -925,15 +925,15 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="SWP",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
+                                           static3d=static3d,correct_3dplane = correct_3dplane,sec_km=sec_km,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def phase_weighted_stack(self, stream, frqlow, frqhigh,
-                             prefilter=True, plots=(),verbose=False,correct_3dplane=False,
-                             static3d=False,sec_km=False, array_response=False,
+                             prefilter=True, plots=(),verbose=False,
+                             static3d=False,correct_3dplane=False,sec_km=False, array_response=False,
                              vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                              sly=(-10, 10), sls=0.5):
         """
@@ -982,15 +982,15 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="PWS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
+                                           static3d=static3d,correct_3dplane = correct_3dplane,sec_km=sec_km,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def delay_and_sum(self, stream, frqlow, frqhigh,
-                      prefilter=True, plots=(), static3d=False,sec_km=False,
-                      array_response=False,verbose=False,correct_3dplane=False,
+                      prefilter=True, plots=(), static3d=False,correct_3dplane=False,sec_km=False,
+                      array_response=False,verbose=False,
                       vel_corr=4.8, wlen=-1, wfrac=1., slx=(-10, 10),
                       sly=(-10, 10), sls=0.5):
         """
@@ -1038,15 +1038,15 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="DLS",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,correct_3dplane = correct_3dplane,
+                                           static3d=static3d,correct_3dplane = correct_3dplane,sec_km=sec_km,
                                            array_r=array_response,verbose=verbose,
                                            vel_corr=vel_corr, wlen=wlen,
                                            wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def fk_analysis(self, stream, frqlow, frqhigh,
-                    prefilter=True, plots=(), static3d=False,sec_km=False,
-                    array_response=False,correct_3dplane=True,
+                    prefilter=True, plots=(), static3d=False,correct_3dplane=False,
+                    sec_km=False,array_response=False,
                     vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                     slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -1094,15 +1094,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="FK",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,correct_3dplane = correct_3dplane,
-                                           vel_corr=vel_corr,
+                                           static3d=static3d,correct_3dplane=correct_3dplane,sec_km=sec_km,
+                                           array_r=array_response,vel_corr=vel_corr,
                                            wlen=wlen, wfrac=wfrac,verbose=verbose,
                                            slx=slx, sly=sly, sls=sls)
 
     def capon_estimator(self, stream, frqlow, frqhigh,
-                        prefilter=True, plots=(), static3d=False,sec_km=False,
-                        array_response=False,correct_3dplane=False,
+                        prefilter=True, plots=(), static3d=False,correct_3dplane=False,
+                        sec_km=False,array_response=False,
                         vel_corr=4.8, wlen=-1, wfrac=0.8,verbose=False,
                         slx=(-10, 10), sly=(-10, 10), sls=0.5):
         """
@@ -1150,15 +1149,14 @@ class SeismicArray(object):
         return self._array_analysis_helper(stream=stream, method="CAPON",
                                            frqlow=frqlow, frqhigh=frqhigh,
                                            prefilter=prefilter, plots=plots,
-                                           static3d=static3d,sec_km=sec_km,
-                                           array_r=array_response,correct_3dplane = correct_3dplane,
-                                           vel_corr=vel_corr,verbose=verbose,
+                                           static3d=static3d,correct_3dplane,sec_km=sec_km,
+                                           array_r=array_response,vel_corr=vel_corr,verbose=verbose,
                                            wlen=wlen, wfrac=wfrac,
                                            slx=slx, sly=sly, sls=sls)
 
     def _array_analysis_helper(self, stream, method, frqlow, frqhigh,
-                               prefilter=True, static3d=False, sec_km=False,array_r=False,correct_3dplane=False,
-                               vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),verbose=False,
+                               prefilter=True, static3d=False, correct_3dplane=False,sec_km=False,
+                               array_r=False, vel_corr=4.8, wlen=-1, wfrac=0.8, slx=(-10, 10),verbose=False,
                                sly=(-10, 10), sls=0.5,
                                plots=()):
         """
