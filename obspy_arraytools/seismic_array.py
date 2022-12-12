@@ -2797,7 +2797,7 @@ class SeismicArray(object):
                         (n[0] * n[0] + n[1] * n[1] + n[2] * n[2])**0.5) + \
                         center[2]
         geometry = result[:]
-        # print("Best fitting plane-coordinates :\n", geometry)
+        print("Best fitting plane-coordinates :\n", geometry)
 
         # convert geometry array back to a dictionary.
         geodict = {}
