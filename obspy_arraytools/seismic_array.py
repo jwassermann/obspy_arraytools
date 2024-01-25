@@ -1654,8 +1654,8 @@ class SeismicArray(object):
                 ampw[:ww // 2] = ampw[ww // 2]
                 ampw *= 1 / 3.
                 # Weights are 1/ampw unless ampw is very small, then 0.
-                weight = np.where(ampw > np.finfo(np.float).eps * 10.,
-                                  1. / (ampw + np.finfo(np.float).eps), 0.)
+                weight = np.where(ampw > np.finfo(np.float64).eps * 10.,
+                                  1. / (ampw + np.finfo(np.float64).eps), 0.)
                 fcoeffz[nst, nwin, :] *= weight
                 fcoeffe[nst, nwin, :] *= weight
                 fcoeffn[nst, nwin, :] *= weight
