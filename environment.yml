@@ -2,8 +2,8 @@ name: obspy_arraytools
 channels:
   - conda-forge
 dependencies:
-  - python =3.7
-  - obspy =1.2.2
+  - python 
+  - obspy 
   - basemap
   - cartopy
   - pyglet
