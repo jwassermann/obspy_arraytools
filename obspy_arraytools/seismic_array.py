@@ -2997,11 +2997,9 @@ class SeismicArray(object):
                 nfft *= 2
                 tr1 = np.fft.rfft(tr.data, int(nfft))
                 for k in range(0, int(nfft / 2), 1):
-                    tr1[k] *= np.complex(
-                        np.cos((t_shift[i] * samp) * (k / float(nfft))
-                               * 2. * np.pi),
-                        -np.sin((t_shift[i] * samp) *
-                                (k / float(nfft)) * 2. * np.pi))
+                    temp.real = np.cos((t_shift[i] * samp) * (k / float(nfft)) * 2. * np.pi) 
+                    temp.imag = -np.sin((t_shift[i] * samp) * (k / float(nfft)) * 2. * np.pi))
+                    tr1[k] *= temp
 
                 tr1 = np.fft.irfft(tr1, nfft)
                 tr.data = tr1[0:ndat]
