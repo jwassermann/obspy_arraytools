@@ -22,7 +22,7 @@ import scipy as sp
 from obspy.core.util import SCIPY_VERSION
 if SCIPY_VERSION < [1,14]:
     from scipy.integrate import cumtrapz
-else
+else:
     from scipy.integrate import cumulative_trapezoid as cumtrapz
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as patheffects
