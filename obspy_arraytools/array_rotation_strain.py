@@ -11,8 +11,7 @@ import warnings
 import numpy as np
 
 
-def array_rotation_strain(subarray, ts1, ts2, ts3, vp, vs, array_coords,
-                          sigmau):
+def array_rotation_strain(subarray, ts1, ts2, ts3, vp, vs, array_coords,sigmau):
     """
     Derive rotations and strains from array measurements.
     This routine calculates the best-fitting rigid body rotation and uniform
@@ -24,7 +23,7 @@ def array_rotation_strain(subarray, ts1, ts2, ts3, vp, vs, array_coords,
     changes in details only. Output has been checked to be the same as the
     original Matlab Code.
     .. note::
-        ts\_ below means "time series"
+        tsX  below means "time series"
     :param vp: P wave speed in the soil under the array (km/s).
     :param vs: S wave speed in the soil under the array Note - vp and vs may
         be any unit (e.g. miles/week), and this unit need not be related to
