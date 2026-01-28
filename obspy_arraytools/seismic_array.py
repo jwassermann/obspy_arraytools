@@ -2956,7 +2956,7 @@ class SeismicArray(object):
         endtime = min([tr.stats.endtime for tr in stream])
         stream.trim(starttime, endtime)
         shift = []
-        stream = stream.copy()
+        #stream = stream.copy()
 
         if isinstance(event, Event):
             origin_ = event.origins[0]
