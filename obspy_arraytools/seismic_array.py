@@ -62,12 +62,12 @@ def _get_stream_offsets(stream, stime, etime):
     epoint = np.empty(len(stream), dtype=np.int32, order="C")
     for i, tr in enumerate(stream):
         #if tr.stats.starttime > stime:
-        if np.abs(tr.stats.starttime - stime) > tr.stats.sampling_rate:
+        if (tr.stats.starttime-stime) > tr.stats.delta:
             msg = "Specified stime %s is smaller than starttime %s " \
                   "in stream"
             raise ValueError(msg % (stime, tr.stats.starttime))
        # if tr.stats.endtime < etime:
-        if np.abs(tr.stats.endtime - etime) > tr.stats.sampling_rate:
+        if (etime - tr.stats.endtime) > tr.stats.delta:
             msg = "Specified etime %s is bigger than endtime %s in stream"
             raise ValueError(msg % (etime, tr.stats.endtime))
         # now we have to adjust to the beginning of real start time
@@ -1374,7 +1374,7 @@ class SeismicArray(object):
                                     sls, filename_patterns, True,
                                     method, array_r, st_workon, starttime,
                                     wlen, endtime,sec_km)
-                plt.show()
+                #plt.show()
             if "slowness_xy" in plots:
                 plot_array_analysis(outarr, transff, sllx, slmx, slly, slmy,
                                     sls, filename_patterns, False, method,
@@ -1757,7 +1757,7 @@ class SeismicArray(object):
         fs = stream_n.traces[0].stats.sampling_rate
         # Use np.int to not get the newint type, which causes an error with old
         # versions of numpy (1.6.2 as listed in the minimum requirements).
-        nsamp = np.int(win_len * fs)
+        nsamp = np.int64(win_len * fs)
         # Number of samples to move forward by during a step.
         nstep = int(nsamp * win_frac)
         # Number of windows is determined by data length minus one window
@@ -2916,11 +2916,11 @@ class SeismicArray(object):
                     continue
                 ttime = ttimes[key]
                 dist = distances[key]
-                if max(ttime) > times_array[0] + 0.9 * times_array.ptp():
+                if max(ttime) > times_array[0] + 0.9 * np.ptp(times_array):
                     continue
                 plt.scatter(ttime, dist, s=0.5, zorder=-10, color="black",
                             alpha=0.8)
-                plt.text(max(ttime) + 0.005 * times_array.ptp(),
+                plt.text(max(ttime) + 0.005 * np.ptp(times_array),
                          dist_max - 0.02 * (dist_max - dist_min), key)
 
         plt.ylim(dist_min, dist_max)

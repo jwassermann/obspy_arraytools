@@ -26,7 +26,7 @@ import pyglet
 from obspy.core import UTCDateTime
 from obspy.imaging import cm
 
-plt.rcParams["figure.figsize"] = (15,15)
+plt.rcParams["figure.figsize"] = (14,14)
 plt.rcParams["lines.linewidth"] = 2
 plt.rc('legend', fontsize=12)
 
@@ -208,9 +208,7 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
                     for iy, sy in enumerate(slll):
                         slow_y = np.cos((baz[i] + 180) * np.pi / 180) * slow[i]
                         slow_x = np.sin((baz[i] + 180) * np.pi / 180) * slow[i]
-                        tslow = (np.sqrt((sx+slow_x) *
-                                 (sx+slow_x)+(sy+slow_y) *
-                                 (sy+slow_y)))
+                        tslow = np.hypot((sx+slow_x),(sy+slow_y))
                         tbaz = (np.arctan2(sx+slow_x, sy+slow_y) *
                                 180 / np.pi + 180.)
                         if tbaz > 360.:
@@ -287,40 +285,58 @@ def plot_array_analysis(out, transff, sllx, slmx, slly, slmy, sls,
         filenames.append(filename)
     
         # save frame
-        plt.savefig(filename,dpi=150)
+        plt.savefig(filename,dpi=70)
 
     if numslice > 1:
-        plt.close('all')
         images = []
+        from PIL import ImageSequence
+        from PIL import Image
+
+        # write GIF animation
         for filename in filenames:
             frame = Image.open(filename)
             images.append(frame)
             os.remove(filename)
 
-        # Save the frames as an animated GIF
+       # Save the frames as an animated GIF
         images[0].save('mygif.gif',
-               save_all=True,quality=95,subsampling=0,
+               save_all=True,quality=90,subsampling=0,
                append_images=images[1:],
                duration=1000,
                loop=1)
 
-        ag_file = "mygif.gif"
-        animation = pyglet.resource.animation(ag_file)
-        sprite = pyglet.sprite.Sprite(animation)
+        import pyglet
+        from pyglet.window import key
+        keys = key.KeyStateHandler()
 
-        # create a window and set it to the image size
-        win = pyglet.window.Window(width=sprite.width, height=sprite.height)
+        monitor = pyglet.display.get_display().get_default_screen()
+        sprite = pyglet.sprite.Sprite(pyglet.resource.animation('mygif.gif'))
+        H_ratio = max(sprite.height, monitor.height) / min(sprite.height, monitor.height)
+        W_ratio = max(sprite.width, monitor.width) / min(sprite.width, monitor.width)
 
-        # set window background color = r, g, b, alpha
-        # each value goes from 0.0 to 1.0
-        green = 0, 1, 0, 1
-        pyglet.gl.glClearColor(*green)
 
-        @win.event
+        sprite.scale = min(H_ratio, W_ratio) # sprite.scale = 2 would double the size.
+                                     # We'll upscale to the lowest of width/height
+                                     # to not go out of bounds. Whichever
+                                     # value hits the screen edges first essentially.
+
+
+        window = pyglet.window.Window(width=monitor.height/2, height=monitor.height/2)#fullscreen=True)
+        pyglet.gl.glClearColor(1, 1, 1, 1)
+
+        @window.event
         def on_draw():
-            win.clear()
+            window.clear()
             sprite.draw()
 
+        @window.event
+        def on_key_press(symbol, modifiers):
+            print(symbol,modifiers,end=' | ',flush=True)
+            if symbol in [key.Q, key.ESCAPE]:
+                print("\nExit key pressed")
+                window.close()
+
+        window.push_handlers(keys)
         pyglet.app.run()
     else:
         plt.show()
